@@ -302,6 +302,5 @@
   </div><!-- /admin-main -->
 </div><!-- /admin-shell -->
 
-<script src="${pageContext.request.contextPath}/js/admin.js"></script>
 </body>
 </html>

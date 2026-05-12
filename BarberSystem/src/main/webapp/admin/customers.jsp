@@ -7,8 +7,21 @@
   }
   String adminName = (String) session.getAttribute("fullName");
   UserDAO userDAO  = new UserDAO();
+  String searchQ   = request.getParameter("q") != null ? request.getParameter("q").trim() : "";
   List<User> customers = userDAO.getAllCustomers();
-  String successParam  = request.getParameter("success");
+  // Filter server-side by name or email
+  if (!searchQ.isEmpty()) {
+    java.util.Iterator<User> it = customers.iterator();
+    while (it.hasNext()) {
+      User u = it.next();
+      String name  = u.getFullName() != null ? u.getFullName().toLowerCase() : "";
+      String email = u.getEmail()    != null ? u.getEmail().toLowerCase()    : "";
+      if (!name.contains(searchQ.toLowerCase()) && !email.contains(searchQ.toLowerCase())) {
+        it.remove();
+      }
+    }
+  }
+  String successParam = request.getParameter("success");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -196,12 +209,7 @@
       color: var(--text);
     }
 
-    /* hide rows that don't match search */
-    .customers-table tbody tr.hidden-row {
-      display: none;
-    }
-
-    .customer-name {
+    /* hide rows that don't match search — handled server-side */    .customer-name {
       font-weight: 700;
       font-size: .92rem;
     }
@@ -266,11 +274,18 @@
         <div class="alert alert-success">&#10003; Customer status updated.</div>
       <% } %>
 
-      <!-- Search bar -->
+      <!-- Search bar — server-side -->
       <div class="search-bar-wrap">
-        <input type="text" id="customerSearch"
-               placeholder="Search by name or email"
-               oninput="filterCustomers(this.value)">
+        <form method="get" action="${pageContext.request.contextPath}/admin/customers.jsp"
+              style="display:flex;gap:8px;align-items:center;">
+          <input type="text" name="q" value="<%= searchQ %>"
+                 placeholder="Search by name or email"
+                 style="width:340px;max-width:100%;">
+          <% if (!searchQ.isEmpty()) { %>
+            <a href="${pageContext.request.contextPath}/admin/customers.jsp"
+               class="btn btn-outline btn-sm">Clear</a>
+          <% } %>
+        </form>
       </div>
 
       <!-- Customers table -->
@@ -288,15 +303,14 @@
             </thead>
             <tbody id="customerTableBody">
               <% if (customers.isEmpty()) { %>
-                <tr id="emptyRow">
+                <tr>
                   <td colspan="5" style="text-align:center;color:var(--muted);padding:32px;">
-                    No customers registered yet.
+                    <%= searchQ.isEmpty() ? "No customers registered yet." : "No customers match \"" + searchQ + "\"." %>
                   </td>
                 </tr>
               <% } %>
               <% for (User u : customers) { %>
-                <tr data-name="<%= u.getFullName().toLowerCase() %>"
-                    data-email="<%= u.getEmail().toLowerCase() %>">
+                <tr>
                   <td class="customer-name"><%= u.getFullName() %></td>
                   <td class="customer-email"><%= u.getEmail() %></td>
                   <td class="customer-phone">
@@ -325,38 +339,9 @@
           </table>
         </div>
 
-        <!-- No results message (shown by JS) -->
-        <div id="noResults"
-             style="display:none;text-align:center;color:var(--muted);padding:32px;font-size:.88rem;">
-          No customers match your search.
-        </div>
-      </div>
-
     </div><!-- /admin-body -->
   </div><!-- /admin-main -->
 </div><!-- /admin-shell -->
-
-<script>
-  function filterCustomers(query) {
-    const q     = query.trim().toLowerCase();
-    const rows  = document.querySelectorAll('#customerTableBody tr[data-name]');
-    const empty = document.getElementById('noResults');
-    let   shown = 0;
-
-    rows.forEach(function(row) {
-      const name  = row.getAttribute('data-name')  || '';
-      const email = row.getAttribute('data-email') || '';
-      if (!q || name.includes(q) || email.includes(q)) {
-        row.classList.remove('hidden-row');
-        shown++;
-      } else {
-        row.classList.add('hidden-row');
-      }
-    });
-
-    empty.style.display = (shown === 0 && rows.length > 0) ? 'block' : 'none';
-  }
-</script>
 
 </body>
 </html>
