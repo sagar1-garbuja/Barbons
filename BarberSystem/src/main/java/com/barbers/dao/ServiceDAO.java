@@ -1,11 +1,14 @@
 package com.barbers.dao;
 
-import com.barbers.model.Service;
-import com.barbers.util.DBConnection;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.barbers.model.Service;
+import com.barbers.util.DBConnection;
 
 /**
  * Data Access Object for the {@code services} table.
@@ -87,6 +90,24 @@ public class ServiceDAO {
             ps.setDouble(3, s.getPrice());
             ps.setInt(4, s.getDurationMins());
             ps.setInt(5, s.getServiceId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Permanently deletes a service by ID.
+     *
+     * @param id the service_id to delete
+     * @return {@code true} on success
+     */
+    public boolean deleteService(int id) {
+        String sql = "DELETE FROM services WHERE service_id=?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

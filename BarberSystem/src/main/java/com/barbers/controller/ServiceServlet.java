@@ -1,13 +1,16 @@
 package com.barbers.controller;
 
-import com.barbers.dao.ServiceDAO;
-import com.barbers.model.Service;
-import com.barbers.util.SessionUtils;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
-import java.io.IOException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.barbers.dao.ServiceDAO;
+import com.barbers.model.Service;
+import com.barbers.util.SessionUtils;
 
 /**
  * Handles CRUD operations for services (admin only).
@@ -77,6 +80,11 @@ public class ServiceServlet extends HttpServlet {
             int status = Integer.parseInt(req.getParameter("currentStatus"));
             serviceDAO.toggleActive(id, status == 1 ? 0 : 1);
             res.sendRedirect(req.getContextPath() + "/admin/services.jsp");
+
+        } else if ("delete".equals(action)) {
+            int id = Integer.parseInt(req.getParameter("serviceId"));
+            serviceDAO.deleteService(id);
+            res.sendRedirect(req.getContextPath() + "/admin/services.jsp?success=deleted");
         } else {
             res.sendRedirect(req.getContextPath() + "/admin/services.jsp");
         }

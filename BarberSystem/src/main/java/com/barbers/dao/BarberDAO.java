@@ -1,11 +1,16 @@
 package com.barbers.dao;
 
-import com.barbers.model.Barber;
-import com.barbers.util.DBConnection;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.barbers.model.Barber;
+import com.barbers.util.DBConnection;
 
 /**
  * Data Access Object for the {@code barbers} table.
@@ -84,6 +89,24 @@ public class BarberDAO {
             ps.setString(2, b.getSpeciality());
             ps.setString(3, b.getBio());
             ps.setInt(4, b.getBarberId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Permanently deletes a barber by ID.
+     *
+     * @param id the barber_id to delete
+     * @return {@code true} on success
+     */
+    public boolean deleteBarber(int id) {
+        String sql = "DELETE FROM barbers WHERE barber_id=?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
