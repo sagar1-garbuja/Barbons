@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%-- Admin dashboard: shows stat cards, recent bookings, and review management --%>
 <%@ page import="com.barbers.dao.AppointmentDAO, com.barbers.dao.UserDAO, com.barbers.dao.ReviewDAO" %>
 <%@ page import="com.barbers.model.Appointment, com.barbers.model.Review" %>
 <%@ page import="java.util.List" %>
