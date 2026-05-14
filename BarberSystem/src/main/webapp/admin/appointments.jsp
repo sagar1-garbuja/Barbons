@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%-- Appointments page: admin can confirm, complete, or cancel any booking --%>
 <%@ page import="com.barbers.dao.AppointmentDAO, com.barbers.model.Appointment, java.util.List" %>
 <%
   if (session.getAttribute("userId") == null || !"admin".equals(session.getAttribute("role"))) {
