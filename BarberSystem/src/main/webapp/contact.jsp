@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%-- Contact page: shows a message form, opening hours, and a map --%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
