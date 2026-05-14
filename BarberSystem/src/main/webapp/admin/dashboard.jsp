@@ -239,7 +239,7 @@
         </div>
       </div>
 
-      <!-- ── Reviews management (unchanged) ── -->
+      <!-- ── Reviews management: admin can show or hide each review ── -->
       <div class="section-card">
         <div class="section-card-header">
           <h3>Reviews</h3>
