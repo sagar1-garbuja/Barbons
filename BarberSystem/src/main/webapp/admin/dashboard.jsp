@@ -1,5 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%-- Admin dashboard: shows stat cards, recent bookings, and review management --%>
 <%@ page import="com.barbers.dao.AppointmentDAO, com.barbers.dao.UserDAO, com.barbers.dao.ReviewDAO" %>
 <%@ page import="com.barbers.model.Appointment, com.barbers.model.Review" %>
 <%@ page import="java.util.List" %>
@@ -174,7 +173,7 @@
         <p>Overview of your barbershop operations.</p>
       </div>
 
-      <!-- ── Stat cards: show key numbers at a glance ── -->
+      <!-- ── Stat cards ── -->
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-label">Total Customers</div>
@@ -198,7 +197,7 @@
         </div>
       </div>
 
-      <!-- ── Upcoming Bookings table: limited to 10 most recent ── -->
+      <!-- ── Upcoming Bookings table ── -->
       <div class="section-card">
         <div class="section-card-header">
           <h3>Upcoming Bookings</h3>
@@ -239,7 +238,7 @@
         </div>
       </div>
 
-      <!-- ── Reviews management: admin can show or hide each review ── -->
+      <!-- ── Reviews management (unchanged) ── -->
       <div class="section-card">
         <div class="section-card-header">
           <h3>Reviews</h3>

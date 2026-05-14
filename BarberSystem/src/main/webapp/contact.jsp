@@ -1,5 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%-- Contact page: shows a message form, opening hours, and a map --%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,7 +88,7 @@
 
 <div class="contact-layout">
 
-  <!-- LEFT: contact form + opening hours table -->
+  <!-- LEFT -->
   <div class="contact-left">
     <h1>CONTACT US</h1>
     <p>Have a question or want to get in touch? Fill out the form and we'll get back to you as soon as possible. You can also visit us in store during opening hours.</p>
@@ -130,7 +129,7 @@
     </table>
   </div>
 
-  <!-- RIGHT: embedded Google map + address/contact info -->
+  <!-- RIGHT -->
   <div>
     <div class="map-wrap">
       <iframe

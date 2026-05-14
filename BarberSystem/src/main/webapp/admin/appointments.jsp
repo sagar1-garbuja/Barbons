@@ -1,5 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%-- Appointments page: admin can confirm, complete, or cancel any booking --%>
 <%@ page import="com.barbers.dao.AppointmentDAO, com.barbers.model.Appointment, java.util.List" %>
 <%
   if (session.getAttribute("userId") == null || !"admin".equals(session.getAttribute("role"))) {
@@ -287,7 +286,7 @@
                   <!-- Customer Name -->
                   <td class="customer-name"><%= a.getCustomerName() %></td>
 
-                  <!-- Date & Time: show date on first line, time on second -->
+                  <!-- Date & Time -->
                   <td class="datetime-cell">
                     <%= a.getApptDate() %><br>
                     <%= a.getApptTime().toString().substring(0, 5) %>
