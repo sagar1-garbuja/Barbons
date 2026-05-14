@@ -89,7 +89,7 @@
 
 <div class="contact-layout">
 
-  <!-- LEFT -->
+  <!-- LEFT: contact form + opening hours table -->
   <div class="contact-left">
     <h1>CONTACT US</h1>
     <p>Have a question or want to get in touch? Fill out the form and we'll get back to you as soon as possible. You can also visit us in store during opening hours.</p>
