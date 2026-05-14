@@ -287,7 +287,7 @@
                   <!-- Customer Name -->
                   <td class="customer-name"><%= a.getCustomerName() %></td>
 
-                  <!-- Date & Time -->
+                  <!-- Date & Time: show date on first line, time on second -->
                   <td class="datetime-cell">
                     <%= a.getApptDate() %><br>
                     <%= a.getApptTime().toString().substring(0, 5) %>
