@@ -198,7 +198,7 @@
         </div>
       </div>
 
-      <!-- ── Upcoming Bookings table ── -->
+      <!-- ── Upcoming Bookings table: limited to 10 most recent ── -->
       <div class="section-card">
         <div class="section-card-header">
           <h3>Upcoming Bookings</h3>
