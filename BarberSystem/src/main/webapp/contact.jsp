@@ -130,7 +130,7 @@
     </table>
   </div>
 
-  <!-- RIGHT -->
+  <!-- RIGHT: embedded Google map + address/contact info -->
   <div>
     <div class="map-wrap">
       <iframe
