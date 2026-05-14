@@ -174,7 +174,7 @@
         <p>Overview of your barbershop operations.</p>
       </div>
 
-      <!-- ── Stat cards ── -->
+      <!-- ── Stat cards: show key numbers at a glance ── -->
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-label">Total Customers</div>
