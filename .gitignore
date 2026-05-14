@@ -1,0 +1,11 @@
+# Maven build output — never commit compiled files or the .war
+target/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
