@@ -3,20 +3,26 @@ package com.barbers.model;
 import java.sql.Timestamp;
 
 /**
- * Represents a barbering service offered by the shop.
+ * Service — represents a barbering service offered by the shop (e.g. "Classic Haircut").
+ * Maps to the 'services' table in the database.
  */
 public class Service {
-    private int       serviceId;
-    private String    serviceName;
-    private String    description;
-    private double    price;
-    private int       durationMins;
-    private int       isActive;
+
+    // ── Database columns ──────────────────────────────────────────────────
+
+    private int       serviceId;    // primary key
+    private String    serviceName;  // display name shown to customers
+    private String    description;  // optional longer description
+    private double    price;        // cost in dollars
+    private int       durationMins; // how long the service takes (in minutes)
+    private int       isActive;     // 1 = shown on booking page, 0 = hidden
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
+    // Default constructor (used by the DAO)
     public Service() {}
 
+    // Convenience constructor used when creating a new service from the admin form
     public Service(String serviceName, String description,
                    double price, int durationMins, int isActive) {
         this.serviceName  = serviceName;

@@ -5,26 +5,36 @@ import java.sql.Time;
 import java.sql.Timestamp;
 
 /**
- * Represents a booked appointment.
+ * Appointment — represents one booking made by a customer.
+ *
+ * Most fields map directly to columns in the 'appointments' table.
+ * The last four fields (customerName, serviceName, servicePrice, barberName)
+ * are NOT stored in the table — they are filled in by the DAO when it
+ * joins with other tables, so the JSP doesn't need to do extra lookups.
  */
 public class Appointment {
-    private int       appointmentId;
-    private int       userId;
-    private int       barberId;
-    private int       serviceId;
-    private Date      apptDate;
-    private Time      apptTime;
-    private String    status;   // pending | confirmed | completed | cancelled
-    private String    notes;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
 
-    // Joined fields (not in DB column, populated by DAO joins)
-    private String    customerName;
-    private String    serviceName;
-    private double    servicePrice;
-    private String    barberName;
+    // ── Database columns ──────────────────────────────────────────────────
 
+    private int       appointmentId; // primary key
+    private int       userId;        // which customer made the booking
+    private int       barberId;      // which barber is assigned
+    private int       serviceId;     // which service was chosen
+    private Date      apptDate;      // date of the appointment (YYYY-MM-DD)
+    private Time      apptTime;      // time of the appointment (HH:MM:SS)
+    private String    status;        // pending | confirmed | completed | cancelled
+    private String    notes;         // optional notes from the customer
+    private Timestamp createdAt;     // when the booking was made
+    private Timestamp updatedAt;     // when the booking was last changed
+
+    // ── Joined / display fields (not in the DB column) ────────────────────
+
+    private String customerName;  // from users.full_name
+    private String serviceName;   // from services.service_name
+    private double servicePrice;  // from services.price
+    private String barberName;    // from barbers.name
+
+    // Default constructor (required by the DAO when building objects from ResultSet)
     public Appointment() {}
 
     // ── Getters & Setters ──────────────────────────────────────────────────
@@ -59,6 +69,7 @@ public class Appointment {
     public Timestamp getUpdatedAt()                  { return updatedAt; }
     public void      setUpdatedAt(Timestamp v)       { this.updatedAt = v; }
 
+    // Joined fields
     public String    getCustomerName()               { return customerName; }
     public void      setCustomerName(String v)       { this.customerName = v; }
 

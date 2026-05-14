@@ -1,22 +1,23 @@
 package com.barbers.dao;
 
-import com.barbers.model.Review;
-import com.barbers.util.DBConnection;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.barbers.model.Review;
+import com.barbers.util.DBConnection;
+
 /**
- * Data Access Object for the {@code reviews} table.
+ * ReviewDAO — all database operations for the 'reviews' table.
  */
 public class ReviewDAO {
 
     /**
-     * Inserts a new review.
-     *
-     * @param r the Review to insert
-     * @return {@code true} on success
+     * Saves a new review to the database.
+     * is_visible is set to 1 (visible) by default — admin can hide it later.
      */
     public boolean insertReview(Review r) {
         String sql = "INSERT INTO reviews (appointment_id, user_id, rating, comment, is_visible, created_at) "
@@ -35,9 +36,8 @@ public class ReviewDAO {
     }
 
     /**
-     * Returns all visible reviews (is_visible = 1) for the public pages.
-     *
-     * @return list of visible {@link Review} objects with joined customer/service names
+     * Returns only visible reviews (is_visible = 1) for the public pages.
+     * Joins with users and services so the JSP can show the customer name and service.
      */
     public List<Review> getVisibleReviews() {
         List<Review> list = new ArrayList<>();
@@ -46,7 +46,7 @@ public class ReviewDAO {
                    + "JOIN users u ON r.user_id = u.user_id "
                    + "JOIN appointments a ON r.appointment_id = a.appointment_id "
                    + "JOIN services s ON a.service_id = s.service_id "
-                   + "WHERE r.is_visible = 1 ORDER BY r.created_at DESC";
+                   + "WHERE r.is_visible = 1 ORDER BY r.created_at DESC"; // newest first
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -58,9 +58,8 @@ public class ReviewDAO {
     }
 
     /**
-     * Returns all reviews regardless of visibility (admin view).
-     *
-     * @return list of all {@link Review} objects
+     * Returns all reviews regardless of visibility (used by the admin dashboard).
+     * Admin can see hidden reviews and choose to show or hide them.
      */
     public List<Review> getAllReviews() {
         List<Review> list = new ArrayList<>();
@@ -81,11 +80,11 @@ public class ReviewDAO {
     }
 
     /**
-     * Toggles the is_visible flag for a review (admin show/hide).
+     * Shows or hides a review on the public page.
+     * Called by the admin when they click "Hide" or "Show" on the dashboard.
      *
-     * @param id     the review_id
-     * @param status 1 to show, 0 to hide
-     * @return {@code true} on success
+     * @param id     the review_id to update
+     * @param status 1 = visible, 0 = hidden
      */
     public boolean toggleVisibility(int id, int status) {
         String sql = "UPDATE reviews SET is_visible=? WHERE review_id=?";
@@ -102,6 +101,7 @@ public class ReviewDAO {
 
     // ── Private helper ─────────────────────────────────────────────────────
 
+    /** Converts one ResultSet row into a Review object. */
     private Review mapRow(ResultSet rs) throws SQLException {
         Review r = new Review();
         r.setReviewId(rs.getInt("review_id"));
@@ -111,6 +111,8 @@ public class ReviewDAO {
         r.setComment(rs.getString("comment"));
         r.setIsVisible(rs.getInt("is_visible"));
         r.setCreatedAt(rs.getTimestamp("created_at"));
+
+        // These columns only exist when the query uses JOINs — ignore if missing
         try { r.setCustomerName(rs.getString("customer_name")); } catch (SQLException ignored) {}
         try { r.setServiceName(rs.getString("service_name")); }   catch (SQLException ignored) {}
         return r;

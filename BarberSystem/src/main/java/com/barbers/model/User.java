@@ -3,21 +3,29 @@ package com.barbers.model;
 import java.sql.Timestamp;
 
 /**
- * Represents a user (customer or admin) in the system.
+ * User — represents anyone who has an account in the system.
+ * Maps to the 'users' table in the database.
+ *
+ * Role can be "customer" (books appointments) or "admin" (manages the system).
  */
 public class User {
-    private int       userId;
-    private String    fullName;
-    private String    email;
-    private String    phone;
-    private String    password;   // MD5 hash
-    private String    role;       // "customer" | "admin"
-    private int       isActive;   // 1 = active, 0 = disabled
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
 
+    // ── Database columns ──────────────────────────────────────────────────
+
+    private int       userId;    // primary key
+    private String    fullName;  // display name
+    private String    email;     // used as the login username
+    private String    phone;     // 10-digit phone number
+    private String    password;  // MD5 hash — never stored as plain text
+    private String    role;      // "customer" or "admin"
+    private int       isActive;  // 1 = can log in, 0 = account disabled by admin
+    private Timestamp createdAt; // when the account was registered
+    private Timestamp updatedAt; // when the account was last changed
+
+    // Default constructor (used by the DAO)
     public User() {}
 
+    // Convenience constructor used during registration
     public User(String fullName, String email, String phone,
                 String password, String role, int isActive) {
         this.fullName = fullName;

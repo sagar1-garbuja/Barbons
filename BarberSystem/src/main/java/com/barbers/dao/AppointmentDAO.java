@@ -1,22 +1,24 @@
 package com.barbers.dao;
 
-import com.barbers.model.Appointment;
-import com.barbers.util.DBConnection;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.barbers.model.Appointment;
+import com.barbers.util.DBConnection;
+
 /**
- * Data Access Object for the {@code appointments} table.
+ * AppointmentDAO — all database operations for the 'appointments' table.
  */
 public class AppointmentDAO {
 
     /**
-     * Inserts a new appointment row.
-     *
-     * @param a the Appointment to insert (barberId must already be set by auto-assign)
-     * @return {@code true} on success
+     * Saves a new appointment to the database.
+     * Status is always set to "pending" when first created.
      */
     public boolean insertAppointment(Appointment a) {
         String sql = "INSERT INTO appointments "
@@ -24,12 +26,14 @@ public class AppointmentDAO {
                    + "VALUES (?, ?, ?, ?, ?, 'pending', ?, NOW(), NOW())";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
+            // Fill in the ? placeholders in order
             ps.setInt(1, a.getUserId());
             ps.setInt(2, a.getBarberId());
             ps.setInt(3, a.getServiceId());
             ps.setDate(4, a.getApptDate());
             ps.setTime(5, a.getApptTime());
             ps.setString(6, a.getNotes());
+            // executeUpdate returns the number of rows affected; > 0 means success
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -38,10 +42,8 @@ public class AppointmentDAO {
     }
 
     /**
-     * Returns all appointments for a specific customer, newest first.
-     *
-     * @param userId the customer's user_id
-     * @return list of {@link Appointment} objects with joined service/barber names
+     * Returns all appointments for one customer, newest first.
+     * Joins with users, services, and barbers so the JSP gets names directly.
      */
     public List<Appointment> getAppointmentsByUser(int userId) {
         List<Appointment> list = new ArrayList<>();
@@ -56,6 +58,7 @@ public class AppointmentDAO {
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
+            // Convert each row into an Appointment object and add to the list
             while (rs.next()) list.add(mapRow(rs));
         } catch (SQLException e) {
             e.printStackTrace();
@@ -64,9 +67,8 @@ public class AppointmentDAO {
     }
 
     /**
-     * Returns all appointments in the system (admin view), newest first.
-     *
-     * @return list of all {@link Appointment} objects with joined names
+     * Returns every appointment in the system (used by the admin appointments page).
+     * Joins with users, services, and barbers for display names.
      */
     public List<Appointment> getAllAppointments() {
         List<Appointment> list = new ArrayList<>();
@@ -88,10 +90,7 @@ public class AppointmentDAO {
     }
 
     /**
-     * Returns all appointments for a specific date (admin/barber view).
-     *
-     * @param d the date to filter by
-     * @return list of {@link Appointment} objects
+     * Returns all appointments on a specific date (used for daily schedule views).
      */
     public List<Appointment> getAppointmentsByDate(Date d) {
         List<Appointment> list = new ArrayList<>();
@@ -114,17 +113,16 @@ public class AppointmentDAO {
     }
 
     /**
-     * Returns a list of booked time strings ("HH:MM") for a given date.
-     * A slot is considered booked if ALL active barbers are taken at that time.
-     * Used by the booking page AJAX to disable fully-booked slots.
+     * Returns a list of time strings ("HH:MM") that are fully booked on a given date.
      *
-     * @param d the date to check
-     * @return list of time strings in "HH:MM" format
+     * A time slot is "fully booked" when every active barber already has an appointment
+     * at that time. The booking page uses this list (via AJAX) to disable those slots.
      */
     public List<String> getBookedTimesForDate(Date d) {
         List<String> times = new ArrayList<>();
-        // A slot is fully booked when the number of distinct barbers booked
-        // equals the total number of active barbers.
+
+        // Count how many distinct barbers are booked per time slot.
+        // If that count equals the total number of active barbers, the slot is full.
         String sql = "SELECT TIME_FORMAT(appt_time, '%H:%i') AS t "
                    + "FROM appointments "
                    + "WHERE appt_date = ? AND status NOT IN ('cancelled') "
@@ -136,7 +134,7 @@ public class AppointmentDAO {
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setDate(1, d);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) times.add(rs.getString("t"));
+            while (rs.next()) times.add(rs.getString("t")); // collect each booked time
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -144,11 +142,8 @@ public class AppointmentDAO {
     }
 
     /**
-     * Updates the status of an appointment (admin action).
-     *
-     * @param id     the appointment_id
-     * @param status the new status string
-     * @return {@code true} on success
+     * Changes the status of an appointment (e.g. pending → confirmed).
+     * Called by the admin when they confirm, complete, or cancel a booking.
      */
     public boolean updateStatus(int id, String status) {
         String sql = "UPDATE appointments SET status=?, updated_at=NOW() WHERE appointment_id=?";
@@ -164,12 +159,10 @@ public class AppointmentDAO {
     }
 
     /**
-     * Cancels an appointment only if it belongs to the given user
-     * and is in a cancellable state (pending or confirmed).
-     *
-     * @param id     the appointment_id
-     * @param userId the requesting user's id (ownership check)
-     * @return {@code true} on success
+     * Cancels an appointment, but only if:
+     *   1. The appointment belongs to the given user (ownership check — prevents one
+     *      customer from cancelling another customer's appointment).
+     *   2. The appointment is still in a cancellable state (pending or confirmed).
      */
     public boolean cancelByUser(int id, int userId) {
         String sql = "UPDATE appointments SET status='cancelled', updated_at=NOW() "
@@ -186,10 +179,8 @@ public class AppointmentDAO {
     }
 
     /**
-     * Checks whether a review already exists for a given appointment.
-     *
-     * @param appointmentId the appointment to check
-     * @return {@code true} if a review row exists
+     * Checks if a review already exists for a given appointment.
+     * Used to prevent a customer from submitting two reviews for the same visit.
      */
     public boolean hasReview(int appointmentId) {
         String sql = "SELECT 1 FROM reviews WHERE appointment_id = ?";
@@ -197,7 +188,7 @@ public class AppointmentDAO {
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, appointmentId);
             ResultSet rs = ps.executeQuery();
-            return rs.next();
+            return rs.next(); // true if at least one row was found
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -205,11 +196,8 @@ public class AppointmentDAO {
     }
 
     /**
-     * Returns all completed appointments for a user (used to determine
-     * which ones are eligible for a review).
-     *
-     * @param userId the customer's user_id
-     * @return list of completed {@link Appointment} objects
+     * Returns all completed appointments for a customer.
+     * Used by ReviewServlet to check if the customer is eligible to leave a review.
      */
     public List<Appointment> getCompletedByUser(int userId) {
         List<Appointment> list = new ArrayList<>();
@@ -232,9 +220,8 @@ public class AppointmentDAO {
     }
 
     /**
-     * Returns the count of today's appointments (admin dashboard stat).
-     *
-     * @return integer count
+     * Returns the number of appointments scheduled for today.
+     * Shown as a stat card on the admin dashboard.
      */
     public int getTodayCount() {
         String sql = "SELECT COUNT(*) FROM appointments WHERE appt_date = CURDATE()";
@@ -249,9 +236,8 @@ public class AppointmentDAO {
     }
 
     /**
-     * Returns the count of pending appointments (admin dashboard stat).
-     *
-     * @return integer count
+     * Returns the number of appointments still waiting to be confirmed.
+     * Shown as a stat card on the admin dashboard.
      */
     public int getPendingCount() {
         String sql = "SELECT COUNT(*) FROM appointments WHERE status = 'pending'";
@@ -266,10 +252,9 @@ public class AppointmentDAO {
     }
 
     /**
-     * Returns the total revenue from all completed appointments
-     * (sum of the associated service prices).
-     *
-     * @return total revenue as a double
+     * Returns the total revenue earned from all completed appointments.
+     * Calculated by summing the price of the service for each completed booking.
+     * COALESCE(..., 0) ensures we get 0 instead of NULL when there are no completed bookings.
      */
     public double getTotalRevenue() {
         String sql = "SELECT COALESCE(SUM(s.price), 0) "
@@ -287,6 +272,11 @@ public class AppointmentDAO {
 
     // ── Private helper ─────────────────────────────────────────────────────
 
+    /**
+     * Converts one row from a ResultSet into an Appointment object.
+     * The try/catch blocks around joined fields handle cases where the query
+     * didn't include those columns (e.g. a simple query without JOINs).
+     */
     private Appointment mapRow(ResultSet rs) throws SQLException {
         Appointment a = new Appointment();
         a.setAppointmentId(rs.getInt("appointment_id"));
@@ -299,7 +289,8 @@ public class AppointmentDAO {
         a.setNotes(rs.getString("notes"));
         a.setCreatedAt(rs.getTimestamp("created_at"));
         a.setUpdatedAt(rs.getTimestamp("updated_at"));
-        // joined columns (may be null if not joined)
+
+        // These columns only exist when the query uses JOINs — ignore if missing
         try { a.setCustomerName(rs.getString("customer_name")); } catch (SQLException ignored) {}
         try { a.setServiceName(rs.getString("service_name")); }   catch (SQLException ignored) {}
         try { a.setServicePrice(rs.getDouble("service_price")); }  catch (SQLException ignored) {}

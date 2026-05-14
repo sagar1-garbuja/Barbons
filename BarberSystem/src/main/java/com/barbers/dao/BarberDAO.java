@@ -13,14 +13,12 @@ import com.barbers.model.Barber;
 import com.barbers.util.DBConnection;
 
 /**
- * Data Access Object for the {@code barbers} table.
+ * BarberDAO — all database operations for the 'barbers' table.
  */
 public class BarberDAO {
 
     /**
-     * Returns all barbers regardless of active status (admin view).
-     *
-     * @return list of all {@link Barber} objects
+     * Returns every barber (active and inactive) for the admin management page.
      */
     public List<Barber> getAllBarbers() {
         List<Barber> list = new ArrayList<>();
@@ -37,8 +35,7 @@ public class BarberDAO {
 
     /**
      * Returns only active barbers (is_active = 1).
-     *
-     * @return list of active {@link Barber} objects
+     * Used on the public-facing pages where deactivated barbers should not appear.
      */
     public List<Barber> getAllActiveBarbers() {
         List<Barber> list = new ArrayList<>();
@@ -54,10 +51,7 @@ public class BarberDAO {
     }
 
     /**
-     * Inserts a new barber record.
-     *
-     * @param b the Barber to insert
-     * @return {@code true} on success
+     * Saves a new barber to the database.
      */
     public boolean insertBarber(Barber b) {
         String sql = "INSERT INTO barbers (name, speciality, bio, is_active, created_at, updated_at) "
@@ -76,10 +70,8 @@ public class BarberDAO {
     }
 
     /**
-     * Updates an existing barber's details.
-     *
-     * @param b the Barber with updated values; barber_id must be set
-     * @return {@code true} on success
+     * Updates an existing barber's name, speciality, and bio.
+     * The barber_id in the Barber object identifies which row to update.
      */
     public boolean updateBarber(Barber b) {
         String sql = "UPDATE barbers SET name=?, speciality=?, bio=?, updated_at=NOW() WHERE barber_id=?";
@@ -88,7 +80,7 @@ public class BarberDAO {
             ps.setString(1, b.getName());
             ps.setString(2, b.getSpeciality());
             ps.setString(3, b.getBio());
-            ps.setInt(4, b.getBarberId());
+            ps.setInt(4, b.getBarberId()); // WHERE clause — which barber to update
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -97,35 +89,14 @@ public class BarberDAO {
     }
 
     /**
-     * Permanently deletes a barber by ID.
-     *
-     * @param id the barber_id to delete
-     * @return {@code true} on success
-     */
-    public boolean deleteBarber(int id) {
-        String sql = "DELETE FROM barbers WHERE barber_id=?";
-        try (Connection c = DBConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
-     * Toggles the is_active flag for a barber.
-     *
-     * @param id     the barber_id
-     * @param status 1 to activate, 0 to deactivate
-     * @return {@code true} on success
+     * Sets a barber's is_active flag to 1 (active) or 0 (inactive).
+     * Inactive barbers are not assigned to new bookings.
      */
     public boolean toggleActive(int id, int status) {
         String sql = "UPDATE barbers SET is_active=?, updated_at=NOW() WHERE barber_id=?";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, status);
+            ps.setInt(1, status); // 1 = active, 0 = inactive
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -135,34 +106,36 @@ public class BarberDAO {
     }
 
     /**
-     * AUTO-ASSIGN logic: finds the first active barber who has no appointment
-     * at the given date and time.
+     * Auto-assign logic: finds the first active barber who has no appointment
+     * at the requested date and time.
      *
-     * @param date the appointment date (java.sql.Date)
-     * @param time the appointment time (java.sql.Time)
-     * @return the first available {@link Barber}, or {@code null} if none free
+     * The subquery finds all barber IDs that are already booked at that slot,
+     * and the outer query picks the first active barber NOT in that list.
+     *
+     * Returns null if every active barber is already booked (slot is full).
      */
     public Barber getFirstAvailableBarber(Date date, Time time) {
         String sql = "SELECT * FROM barbers WHERE is_active = 1 "
                    + "AND barber_id NOT IN ("
                    + "  SELECT barber_id FROM appointments "
                    + "  WHERE appt_date = ? AND appt_time = ? "
-                   + "  AND status NOT IN ('cancelled')"
-                   + ") ORDER BY barber_id LIMIT 1";
+                   + "  AND status NOT IN ('cancelled')"  // cancelled slots free up the barber
+                   + ") ORDER BY barber_id LIMIT 1";      // always pick the same barber first (consistent)
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setDate(1, date);
             ps.setTime(2, time);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return mapRow(rs);
+            if (rs.next()) return mapRow(rs); // found an available barber
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return null; // no barber available at this slot
     }
 
     // ── Private helper ─────────────────────────────────────────────────────
 
+    /** Converts one ResultSet row into a Barber object. */
     private Barber mapRow(ResultSet rs) throws SQLException {
         Barber b = new Barber();
         b.setBarberId(rs.getInt("barber_id"));

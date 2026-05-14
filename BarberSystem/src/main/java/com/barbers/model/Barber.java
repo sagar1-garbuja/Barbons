@@ -3,19 +3,25 @@ package com.barbers.model;
 import java.sql.Timestamp;
 
 /**
- * Represents a barber employed at the shop.
+ * Barber — represents a barber who works at the shop.
+ * Maps to the 'barbers' table in the database.
  */
 public class Barber {
-    private int       barberId;
-    private String    name;
-    private String    speciality;
-    private String    bio;
-    private int       isActive;
+
+    // ── Database columns ──────────────────────────────────────────────────
+
+    private int       barberId;    // primary key
+    private String    name;        // barber's full name
+    private String    speciality;  // e.g. "Fades & Tapers"
+    private String    bio;         // short description shown on the public page
+    private int       isActive;    // 1 = available for bookings, 0 = deactivated
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
+    // Default constructor (used by the DAO)
     public Barber() {}
 
+    // Convenience constructor used when creating a new barber from the admin form
     public Barber(String name, String speciality, String bio, int isActive) {
         this.name       = name;
         this.speciality = speciality;

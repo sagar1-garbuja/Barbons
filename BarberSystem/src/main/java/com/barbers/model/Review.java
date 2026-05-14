@@ -3,21 +3,30 @@ package com.barbers.model;
 import java.sql.Timestamp;
 
 /**
- * Represents a customer review for a completed appointment.
+ * Review — represents a customer's rating and comment for a completed appointment.
+ * Maps to the 'reviews' table in the database.
+ *
+ * customerName and serviceName are joined fields filled by the DAO,
+ * not actual columns in the reviews table.
  */
 public class Review {
-    private int       reviewId;
-    private int       appointmentId;
-    private int       userId;
-    private int       rating;      // 1–5
-    private String    comment;
-    private int       isVisible;   // 1 = visible on public pages
+
+    // ── Database columns ──────────────────────────────────────────────────
+
+    private int       reviewId;       // primary key
+    private int       appointmentId;  // which appointment this review is for
+    private int       userId;         // which customer wrote the review
+    private int       rating;         // star rating: 1 (worst) to 5 (best)
+    private String    comment;        // optional written feedback
+    private int       isVisible;      // 1 = shown on public page, 0 = hidden by admin
     private Timestamp createdAt;
 
-    // Joined fields
-    private String    customerName;
-    private String    serviceName;
+    // ── Joined / display fields (not in the DB column) ────────────────────
 
+    private String customerName; // from users.full_name
+    private String serviceName;  // from services.service_name (via appointments join)
+
+    // Default constructor (used by the DAO)
     public Review() {}
 
     // ── Getters & Setters ──────────────────────────────────────────────────
@@ -43,6 +52,7 @@ public class Review {
     public Timestamp getCreatedAt()              { return createdAt; }
     public void      setCreatedAt(Timestamp v)   { this.createdAt = v; }
 
+    // Joined fields
     public String    getCustomerName()           { return customerName; }
     public void      setCustomerName(String v)   { this.customerName = v; }
 

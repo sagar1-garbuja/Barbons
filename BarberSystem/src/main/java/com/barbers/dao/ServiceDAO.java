@@ -11,14 +11,13 @@ import com.barbers.model.Service;
 import com.barbers.util.DBConnection;
 
 /**
- * Data Access Object for the {@code services} table.
+ * ServiceDAO — all database operations for the 'services' table.
  */
 public class ServiceDAO {
 
     /**
-     * Returns all active services (is_active = 1) for the public booking page.
-     *
-     * @return list of active {@link Service} objects
+     * Returns only active services (is_active = 1) for the customer booking page.
+     * Hidden services are not shown to customers.
      */
     public List<Service> getAllActiveServices() {
         List<Service> list = new ArrayList<>();
@@ -34,9 +33,7 @@ public class ServiceDAO {
     }
 
     /**
-     * Returns all services regardless of active status (admin view).
-     *
-     * @return list of all {@link Service} objects
+     * Returns all services (active and hidden) for the admin management page.
      */
     public List<Service> getAllServices() {
         List<Service> list = new ArrayList<>();
@@ -52,10 +49,7 @@ public class ServiceDAO {
     }
 
     /**
-     * Inserts a new service.
-     *
-     * @param s the Service to insert
-     * @return {@code true} on success
+     * Saves a new service to the database.
      */
     public boolean insertService(Service s) {
         String sql = "INSERT INTO services (service_name, description, price, duration_mins, is_active, created_at, updated_at) "
@@ -76,9 +70,7 @@ public class ServiceDAO {
 
     /**
      * Updates an existing service's details.
-     *
-     * @param s the Service with updated values; service_id must be set
-     * @return {@code true} on success
+     * The service_id in the Service object identifies which row to update.
      */
     public boolean updateService(Service s) {
         String sql = "UPDATE services SET service_name=?, description=?, price=?, duration_mins=?, updated_at=NOW() "
@@ -89,7 +81,7 @@ public class ServiceDAO {
             ps.setString(2, s.getDescription());
             ps.setDouble(3, s.getPrice());
             ps.setInt(4, s.getDurationMins());
-            ps.setInt(5, s.getServiceId());
+            ps.setInt(5, s.getServiceId()); // WHERE clause — which service to update
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,29 +90,11 @@ public class ServiceDAO {
     }
 
     /**
-     * Permanently deletes a service by ID.
+     * Shows or hides a service on the booking page.
+     * Hidden services (is_active = 0) are not available for new bookings.
      *
-     * @param id the service_id to delete
-     * @return {@code true} on success
-     */
-    public boolean deleteService(int id) {
-        String sql = "DELETE FROM services WHERE service_id=?";
-        try (Connection c = DBConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
-     * Toggles the is_active flag for a service (show/hide).
-     *
-     * @param id     the service_id
-     * @param status 1 to show, 0 to hide
-     * @return {@code true} on success
+     * @param id     the service_id to update
+     * @param status 1 = visible, 0 = hidden
      */
     public boolean toggleActive(int id, int status) {
         String sql = "UPDATE services SET is_active=?, updated_at=NOW() WHERE service_id=?";
@@ -137,6 +111,7 @@ public class ServiceDAO {
 
     // ── Private helper ─────────────────────────────────────────────────────
 
+    /** Converts one ResultSet row into a Service object. */
     private Service mapRow(ResultSet rs) throws SQLException {
         Service s = new Service();
         s.setServiceId(rs.getInt("service_id"));
