@@ -22,7 +22,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile — BARBER'S</title>
+  <title>Profile — BARBON'S</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/customer.css">
 </head>
@@ -31,7 +31,7 @@
 
   <!-- ── SIDEBAR ── -->
   <aside class="sidebar">
-    <div class="sidebar-brand"><span class="logo">BARBER'S</span></div>
+    <div class="sidebar-brand"><a href="${pageContext.request.contextPath}/" class="logo">BARBON'S</a></div>
     <div class="sidebar-user">
       <div class="user-avatar">&#128100;</div>
       <div class="user-name"><%= fullName %></div>
