@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
   <style>
-    /* ── Sidebar layout ── */
+    /* ── - Sidebar layout - ── */
     .admin-shell {
       display: flex;
       min-height: 100vh;
