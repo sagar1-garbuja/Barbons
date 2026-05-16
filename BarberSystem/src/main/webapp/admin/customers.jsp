@@ -260,7 +260,7 @@
       </div>
     </div>
 
-    <!-- Body -->
+    <!---- Body ---->
     <div class="admin-body">
 
       <!-- Page heading -->
