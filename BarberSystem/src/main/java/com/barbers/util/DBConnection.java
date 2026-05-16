@@ -19,7 +19,7 @@ import java.sql.SQLException;
 public class DBConnection {
 
     // Full JDBC URL — useSSL=false avoids SSL warnings on local XAMPP
-    private static final String URL      = "jdbc:mysql://localhost:3306/barbers_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+    private static final String URL      = "jdbc:mysql://localhost:3307/barbers_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String USER     = "root";
     private static final String PASSWORD = ""; // XAMPP default: no password
 

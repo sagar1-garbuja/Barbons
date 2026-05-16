@@ -9,7 +9,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reviews — BARBER'S</title>
+  <title>Reviews — BARBON'S</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <style>
     body { background: var(--bg); }
@@ -70,7 +70,7 @@
 <body>
 
 <nav class="navbar">
-  <a href="${pageContext.request.contextPath}/index.jsp" class="nav-logo">BARBER'S</a>
+  <a href="${pageContext.request.contextPath}/index.jsp" class="nav-logo">BARBON'S</a>
   <ul class="nav-links">
     <li><a href="${pageContext.request.contextPath}/index.jsp">Home</a></li>
     <li><a href="${pageContext.request.contextPath}/customer/book.jsp">Book Appointment</a></li>
@@ -86,7 +86,7 @@
 <div class="reviews-page">
   <div class="page-hero">
     <h1>Client Reviews</h1>
-    <p>See what our clients have to say about their experience at BARBER'S.</p>
+    <p>See what our clients have to say about their experience at BARBON'S.</p>
   </div>
 
   <% if (reviews.isEmpty()) { %>
@@ -119,7 +119,7 @@
   <% } %>
 </div>
 
-<footer>&copy; 2026 BARBER'S. All rights reserved.</footer>
+<footer>&copy; 2026 BARBON'S. All rights reserved.</footer>
 
 </body>
 </html>

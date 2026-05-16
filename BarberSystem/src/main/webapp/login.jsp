@@ -12,7 +12,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — BARBER'S</title>
+  <title>Login — BARBON'S</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/auth.css">
 </head>
 <body>
@@ -21,7 +21,7 @@
 
   <!-- ── LEFT PANEL ── -->
   <div class="auth-left">
-    <div class="auth-logo">BARBER'S</div>
+    <div class="auth-logo">BARBON'S</div>
 
     <div class="auth-left-body">
       <h1>Welcome <em>back.</em></h1>

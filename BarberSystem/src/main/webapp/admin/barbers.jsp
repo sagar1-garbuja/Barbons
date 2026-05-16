@@ -28,7 +28,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manage Barbers — BARBER'S Admin</title>
+  <title>Manage Barbers — BARBON'S Admin</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
   <style>

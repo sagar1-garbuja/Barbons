@@ -16,7 +16,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BARBER'S — Premium Barber Experience</title>
+  <title>BARBON'S — Premium Barber Experience</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <style>
     /* ── Navbar ── */
@@ -171,7 +171,7 @@
 
 <!-- ── NAVBAR ── -->
 <nav class="navbar">
-  <a href="${pageContext.request.contextPath}/index.jsp" class="nav-logo">BARBER'S</a>
+  <a href="${pageContext.request.contextPath}/index.jsp" class="nav-logo">BARBON'S</a>
   <ul class="nav-links">
     <li><a href="${pageContext.request.contextPath}/index.jsp">Home</a></li>
     <li><a href="${pageContext.request.contextPath}/customer/book.jsp">Book Appointment</a></li>
@@ -259,7 +259,7 @@
   <div class="container">
     <div class="footer-grid">
       <div class="footer-col">
-        <h4>BARBER'S</h4>
+        <h4>BARBON'S</h4>
         <p>123 Main Street<br>Downtown, City 10001</p>
         <p style="margin-top:8px">Mon–Sat: 8 AM – 7 PM<br>Sun: Closed</p>
       </div>
@@ -277,7 +277,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      &copy; 2026 BARBER'S. All rights reserved.
+      &copy; 2026 BARBON'S. All rights reserved.
     </div>
   </div>
 </footer>
