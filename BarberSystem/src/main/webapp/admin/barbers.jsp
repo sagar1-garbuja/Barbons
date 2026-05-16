@@ -276,7 +276,7 @@
 
 <div class="admin-shell">
 
-  <!-- ── Sidebar ── -->
+  <!---- ── Sidebar ── ---->
   <aside class="admin-sidebar">
     <div class="sidebar-brand">Barbon's Barber</div>
     <ul class="sidebar-nav">
