@@ -426,7 +426,7 @@
                         </button>
                       </form>
 
-                      <!-- Delete -->
+                      <!----- Delete ------>
                       <form action="${pageContext.request.contextPath}/barber" method="post"
                             onsubmit="return confirm('Delete this barber? This cannot be undone.');">
                         <input type="hidden" name="action" value="delete">
