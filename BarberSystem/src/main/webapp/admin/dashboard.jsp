@@ -197,7 +197,7 @@
         </div>
       </div>
 
-      <!-- ── Upcoming Bookings table ── -->
+      <!---- ── Upcoming Bookings table ── ---->
       <div class="section-card">
         <div class="section-card-header">
           <h3>Upcoming Bookings</h3>
