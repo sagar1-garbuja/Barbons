@@ -93,6 +93,46 @@ public class UserDAO {
     }
 
     /**
+     * Updates a user's profile picture filename.
+     * Automatically adds the column if it doesn't exist yet.
+     *
+     * @param id       the user_id
+     * @param filename the saved filename (e.g. "42_1716800000000.jpg")
+     * @return {@code true} on success
+     */
+    public boolean updateProfilePicture(int id, String filename) {
+        // Ensure column exists — safe to run every time, ignored if already present
+        String addCol = "ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture VARCHAR(255) DEFAULT NULL";
+        String sql    = "UPDATE users SET profile_picture=?, updated_at=NOW() WHERE user_id=?";
+        try (Connection c = DBConnection.getConnection()) {
+            // Add column if missing (MySQL 8+ supports IF NOT EXISTS)
+            try (PreparedStatement ps = c.prepareStatement(addCol)) {
+                ps.executeUpdate();
+            } catch (SQLException ignored) {
+                // Older MySQL may not support IF NOT EXISTS — try plain ALTER
+                try (PreparedStatement ps = c.prepareStatement(
+                        "ALTER TABLE users ADD COLUMN profile_picture VARCHAR(255) DEFAULT NULL")) {
+                    ps.executeUpdate();
+                } catch (SQLException alreadyExists) {
+                    // Column already exists — that's fine, continue
+                }
+            }
+            // Now update
+            try (PreparedStatement ps = c.prepareStatement(sql)) {
+                ps.setString(1, filename);
+                ps.setInt(2, id);
+                int rows = ps.executeUpdate();
+                System.out.println("[ProfilePicture] Updated user_id=" + id + " filename=" + filename + " rows=" + rows);
+                return rows > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("[ProfilePicture] ERROR: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Updates a user's profile fields (full_name, email, phone).
      *
      * @param u the User with updated values; user_id must be set
@@ -202,6 +242,9 @@ public class UserDAO {
         u.setPassword(rs.getString("password"));
         u.setRole(rs.getString("role"));
         u.setIsActive(rs.getInt("is_active"));
+        // profile_picture column may not exist in older DB schemas — handle gracefully
+        try { u.setProfilePicture(rs.getString("profile_picture")); }
+        catch (SQLException ignored) { u.setProfilePicture(null); }
         u.setCreatedAt(rs.getTimestamp("created_at"));
         u.setUpdatedAt(rs.getTimestamp("updated_at"));
         return u;

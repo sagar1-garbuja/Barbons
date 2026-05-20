@@ -9,6 +9,7 @@ com\barbers\model\Barber.class
 com\barbers\controller\AppointmentServlet.class
 com\barbers\controller\ReviewServlet.class
 com\barbers\model\Appointment.class
+com\barbers\controller\FileServlet.class
 com\barbers\model\User.class
 com\barbers\dao\ServiceDAO.class
 com\barbers\util\SessionUtils.class

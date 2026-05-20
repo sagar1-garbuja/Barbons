@@ -23,35 +23,45 @@
   if (recentAppts.size() > 10) recentAppts = recentAppts.subList(0, 10);
 
   List<Review> allReviews = reviewDAO.getAllReviews();
+  String successParam = request.getParameter("success");
 %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard — BARBER'S</title>
+  <title>Admin Dashboard — BARBONS BARBER</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
 </head>
 <body>
-
-<!-- ── NAVBAR ── -->
-<nav class="admin-navbar">
-  <a href="${pageContext.request.contextPath}/admin/dashboard.jsp" class="nav-logo">BARBER'S</a>
-  <ul class="admin-nav-links">
-    <li><a href="${pageContext.request.contextPath}/admin/dashboard.jsp" class="active">Dashboard</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/appointments.jsp">Appointments</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/barbers.jsp">Barbers</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/customers.jsp">Customers</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/services.jsp">Services</a></li>
-  </ul>
-  <div class="admin-nav-right">
-    <span class="admin-badge">Admin: <%= adminName %></span>
-    <a href="${pageContext.request.contextPath}/auth?action=logout" class="btn btn-outline btn-sm">Logout</a>
+<div class="admin-sidebar">
+  <div class="admin-sidebar-brand">
+    <a href="${pageContext.request.contextPath}/admin/dashboard.jsp">
+      Barbon's Barber<span>Admin Panel</span>
+    </a>
   </div>
-</nav>
+  <nav class="admin-sidebar-nav">
+    <a href="${pageContext.request.contextPath}/admin/dashboard.jsp" class="active">Admin Dashboard</a>
+    <a href="${pageContext.request.contextPath}/admin/appointments.jsp">View All Bookings</a>
+    <a href="${pageContext.request.contextPath}/admin/customers.jsp">Manage Customers</a>
+    <a href="${pageContext.request.contextPath}/admin/barbers.jsp">Manage Barbers</a>
+    <a href="${pageContext.request.contextPath}/admin/services.jsp">Manage Services</a>
+  </nav>
+</div>
 
-<div class="admin-content">
+<div class="admin-main">
+  <div class="admin-header">
+    <span class="admin-header-title">Admin Dashboard</span>
+    <div class="admin-header-right">
+      <span class="admin-header-user">Admin: <strong><%= adminName %></strong></span>
+      <a href="${pageContext.request.contextPath}/logout-confirm.jsp" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+<!-- ── NAVBAR ── -->
+
   <div class="page-header">
     <h1>Dashboard</h1>
     <p>Overview of your barbershop operations.</p>
@@ -76,7 +86,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-label">Total Revenue</div>
-      <div class="stat-value" style="color:var(--completed);">$<%= String.format("%.0f", revenue) %></div>
+      <div class="stat-value" style="color:var(--completed);">Rs. <%= String.format("%.0f", revenue) %></div>
       <div class="stat-sub">From completed bookings</div>
     </div>
   </div>
@@ -121,6 +131,11 @@
     <div class="section-card-header">
       <h3>Reviews</h3>
     </div>
+
+    <% if ("reviewDeleted".equals(successParam)) { %>
+      <div class="alert alert-success">&#10003; Review deleted successfully.</div>
+    <% } %>
+
     <div class="table-wrap">
       <table>
         <thead>
@@ -130,7 +145,7 @@
             <th>Rating</th>
             <th>Comment</th>
             <th>Visible</th>
-            <th>Action</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -140,10 +155,10 @@
               <td><%= r.getServiceName() %></td>
               <td>
                 <% for (int i = 1; i <= 5; i++) { %>
-                  <span style="color:<%= i <= r.getRating() ? "#f39c12" : "#333" %>;">&#9733;</span>
+                  <span style="color:<%= i <= r.getRating() ? "#C9A84C" : "#ccc" %>;">&#9733;</span>
                 <% } %>
               </td>
-              <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                 <%= r.getComment() != null ? r.getComment() : "—" %>
               </td>
               <td>
@@ -152,14 +167,26 @@
                 </span>
               </td>
               <td>
-                <form action="${pageContext.request.contextPath}/admin" method="post">
-                  <input type="hidden" name="action" value="toggleReview">
-                  <input type="hidden" name="reviewId" value="<%= r.getReviewId() %>">
-                  <input type="hidden" name="currentStatus" value="<%= r.getIsVisible() %>">
-                  <button type="submit" class="btn btn-sm <%= r.getIsVisible() == 1 ? "btn-danger" : "btn-success" %>">
-                    <%= r.getIsVisible() == 1 ? "Hide" : "Show" %>
-                  </button>
-                </form>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <%-- Toggle visibility --%>
+                  <form action="${pageContext.request.contextPath}/admin" method="post" style="display:inline;">
+                    <input type="hidden" name="action" value="toggleReview">
+                    <input type="hidden" name="reviewId" value="<%= r.getReviewId() %>">
+                    <input type="hidden" name="currentStatus" value="<%= r.getIsVisible() %>">
+                    <button type="submit" class="btn btn-sm <%= r.getIsVisible() == 1 ? "btn-warning" : "btn-success" %>">
+                      <%= r.getIsVisible() == 1 ? "Hide" : "Show" %>
+                    </button>
+                  </form>
+                  <%-- Delete permanently --%>
+                  <form action="${pageContext.request.contextPath}/admin" method="post" style="display:inline;">
+                    <input type="hidden" name="action" value="deleteReview">
+                    <input type="hidden" name="reviewId" value="<%= r.getReviewId() %>">
+                    <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Permanently delete this review? This cannot be undone.')">
+                      Delete
+                    </button>
+                  </form>
+                </div>
               </td>
             </tr>
           <% } %>
@@ -171,7 +198,7 @@
     </div>
   </div>
 </div>
-
-<script src="${pageContext.request.contextPath}/js/admin.js"></script>
+  </div>
+</div>
 </body>
 </html>

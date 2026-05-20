@@ -24,32 +24,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — BARBER'S</title>
+  <title>Dashboard — BARBONS BARBER</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/customer.css">
 </head>
 <body>
 <div class="customer-layout">
 
-  <!-- ── SIDEBAR ── -->
-  <aside class="sidebar">
-    <div class="sidebar-brand"><span class="logo">BARBER'S</span></div>
-    <div class="sidebar-user">
-      <div class="user-avatar">&#128100;</div>
-      <div class="user-name"><%= fullName %></div>
-      <div class="user-role">Customer</div>
+  <!-- ── TOP NAVBAR ── -->
+  <nav class="customer-navbar">
+    <a href="${pageContext.request.contextPath}/customer/dashboard.jsp" class="nav-logo">BARBONS BARBER</a>
+    <ul class="customer-nav-links">
+      <li><a href="${pageContext.request.contextPath}/index.jsp">Home</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/dashboard.jsp" class="active">Dashboard</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/book.jsp">Book Appointment</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/my-appointments.jsp">My Appointments</a></li>
+      <li><a href="${pageContext.request.contextPath}/reviews.jsp">Reviews</a></li>
+      <li><a href="${pageContext.request.contextPath}/contact.jsp">Contact</a></li>
+    </ul>
+    <div class="customer-nav-right">
+      <div class="customer-nav-avatar">
+        <%
+          String _pic = (String) session.getAttribute("profilePicture");
+          if (_pic != null && !_pic.isEmpty()) { %>
+          <img src="<%= request.getContextPath() %>/uploads/profiles/<%= _pic %>"
+               alt="Profile" style="width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;">
+        <% } else { %>&#128100;<% } %>
+      </div>
+      <span class="customer-nav-name"><%= fullName %></span>
+      <a href="${pageContext.request.contextPath}/customer/profile.jsp" class="btn btn-outline-light btn-sm">Profile</a>
+      <a href="${pageContext.request.contextPath}/logout-confirm.jsp" class="btn btn-primary btn-sm">Logout</a>
     </div>
-    <nav class="sidebar-nav">
-      <a href="${pageContext.request.contextPath}/customer/dashboard.jsp" class="active">&#9632; Dashboard</a>
-      <a href="${pageContext.request.contextPath}/customer/book.jsp">&#43; Book Appointment</a>
-      <a href="${pageContext.request.contextPath}/customer/my-appointments.jsp">&#128197; My Appointments</a>
-      <a href="${pageContext.request.contextPath}/reviews.jsp">&#9733; Reviews</a>
-      <a href="${pageContext.request.contextPath}/customer/profile.jsp">&#9881; Profile</a>
-    </nav>
-    <div class="sidebar-footer">
-      <a href="${pageContext.request.contextPath}/auth?action=logout">&#8594; Logout</a>
-    </div>
-  </aside>
+  </nav>
 
   <!-- ── MAIN ── -->
   <main class="main-content">
@@ -107,12 +113,16 @@
                   <td><span class="badge badge-<%= a.getStatus() %>"><%= a.getStatus() %></span></td>
                   <td>
                     <% if ("pending".equals(a.getStatus()) || "confirmed".equals(a.getStatus())) { %>
+                      <% if ("pending".equals(a.getStatus())) { %>
                       <form action="${pageContext.request.contextPath}/appointment" method="post" style="display:inline;">
                         <input type="hidden" name="action" value="cancel">
                         <input type="hidden" name="id" value="<%= a.getAppointmentId() %>">
                         <button type="submit" class="btn btn-danger btn-sm"
                                 onclick="return confirm('Cancel this appointment?')">Cancel</button>
                       </form>
+                      <% } else { %>
+                        <span style="font-size:.78rem;color:var(--confirmed);font-weight:600;">&#10003; Accepted</span>
+                      <% } %>
                     <% } else { %>
                       <span style="color:var(--muted);font-size:.8rem;">—</span>
                     <% } %>
@@ -129,6 +139,8 @@
     </div>
   </main>
 
+
+<!-- -- MOBILE BOTTOM NAV -- -->
 </div>
 </body>
 </html>

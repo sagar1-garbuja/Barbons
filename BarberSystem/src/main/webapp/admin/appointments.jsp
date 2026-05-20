@@ -7,7 +7,28 @@
   }
   String adminName = (String) session.getAttribute("fullName");
   AppointmentDAO apptDAO = new AppointmentDAO();
+
+  // Server-side filter via GET params
+  String filterStatus = request.getParameter("filterStatus");
+  String filterDate   = request.getParameter("filterDate");
+  if (filterStatus == null) filterStatus = "";
+  if (filterDate   == null) filterDate   = "";
+
   List<Appointment> appointments = apptDAO.getAllAppointments();
+  // Apply filters
+  if (!filterStatus.isEmpty()) {
+    final String fs = filterStatus;
+    appointments = appointments.stream()
+        .filter(a -> fs.equals(a.getStatus()))
+        .collect(java.util.stream.Collectors.toList());
+  }
+  if (!filterDate.isEmpty()) {
+    final String fd = filterDate;
+    appointments = appointments.stream()
+        .filter(a -> fd.equals(String.valueOf(a.getApptDate())))
+        .collect(java.util.stream.Collectors.toList());
+  }
+
   String successParam = request.getParameter("success");
 %>
 <!DOCTYPE html>
@@ -15,29 +36,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Appointments — BARBER'S Admin</title>
+  <title>Appointments — BARBONS BARBER Admin</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
 </head>
 <body>
-
-<nav class="admin-navbar">
-  <a href="${pageContext.request.contextPath}/admin/dashboard.jsp" class="nav-logo">BARBER'S</a>
-  <ul class="admin-nav-links">
-    <li><a href="${pageContext.request.contextPath}/admin/dashboard.jsp">Dashboard</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/appointments.jsp" class="active">Appointments</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/barbers.jsp">Barbers</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/customers.jsp">Customers</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/services.jsp">Services</a></li>
-  </ul>
-  <div class="admin-nav-right">
-    <span class="admin-badge">Admin: <%= adminName %></span>
-    <a href="${pageContext.request.contextPath}/auth?action=logout" class="btn btn-outline btn-sm">Logout</a>
+<div class="admin-sidebar">
+  <div class="admin-sidebar-brand">
+    <a href="${pageContext.request.contextPath}/admin/dashboard.jsp">
+      Barbon's Barber<span>Admin Panel</span>
+    </a>
   </div>
-</nav>
+  <nav class="admin-sidebar-nav">
+    <a href="${pageContext.request.contextPath}/admin/dashboard.jsp">Admin Dashboard</a>
+    <a href="${pageContext.request.contextPath}/admin/appointments.jsp" class="active">View All Bookings</a>
+    <a href="${pageContext.request.contextPath}/admin/customers.jsp">Manage Customers</a>
+    <a href="${pageContext.request.contextPath}/admin/barbers.jsp">Manage Barbers</a>
+    <a href="${pageContext.request.contextPath}/admin/services.jsp">Manage Services</a>
+  </nav>
+</div>
 
-<div class="admin-content">
-  <div class="page-header">
+<div class="admin-main">
+  <div class="admin-header">
+    <span class="admin-header-title">Manage Appointments</span>
+    <div class="admin-header-right">
+      <span class="admin-header-user">Admin: <strong><%= adminName %></strong></span>
+      <a href="${pageContext.request.contextPath}/logout-confirm.jsp" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+<div class="page-header">
     <h1>Manage Appointments</h1>
     <p>View, confirm, complete, or cancel customer appointments.</p>
   </div>
@@ -46,17 +75,32 @@
     <div class="alert alert-success">&#10003; Appointment status updated.</div>
   <% } %>
 
-  <!-- Filters -->
-  <div class="filter-row">
-    <select id="filterStatus">
-      <option value="">All Statuses</option>
-      <option value="pending">Pending</option>
-      <option value="confirmed">Confirmed</option>
-      <option value="completed">Completed</option>
-      <option value="cancelled">Cancelled</option>
-    </select>
-    <input type="date" id="filterDate" placeholder="Filter by date">
-  </div>
+  <!-- Filters — server-side GET form, no JS needed -->
+  <form method="get" action="${pageContext.request.contextPath}/admin/appointments.jsp"
+        style="display:flex;gap:12px;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;">
+    <div>
+      <label style="display:block;font-size:.75rem;font-weight:700;color:var(--muted);
+                    text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Status</label>
+      <select name="filterStatus" class="form-control" style="width:160px;">
+        <option value="" <%= filterStatus.isEmpty() ? "selected" : "" %>>All Statuses</option>
+        <option value="pending"   <%= "pending".equals(filterStatus)   ? "selected" : "" %>>Pending</option>
+        <option value="confirmed" <%= "confirmed".equals(filterStatus) ? "selected" : "" %>>Confirmed</option>
+        <option value="completed" <%= "completed".equals(filterStatus) ? "selected" : "" %>>Completed</option>
+        <option value="cancelled" <%= "cancelled".equals(filterStatus) ? "selected" : "" %>>Cancelled</option>
+      </select>
+    </div>
+    <div>
+      <label style="display:block;font-size:.75rem;font-weight:700;color:var(--muted);
+                    text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Date</label>
+      <input type="date" name="filterDate" class="form-control" style="width:180px;"
+             value="<%= filterDate %>">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+    <% if (!filterStatus.isEmpty() || !filterDate.isEmpty()) { %>
+      <a href="${pageContext.request.contextPath}/admin/appointments.jsp"
+         class="btn btn-outline btn-sm">Clear</a>
+    <% } %>
+  </form>
 
   <div class="section-card">
     <div class="table-wrap">
@@ -74,12 +118,12 @@
           </tr>
         </thead>
         <tbody>
-          <% for (Appointment a : appointments) { %>
+          <% int rowNum = 1; for (Appointment a : appointments) { %>
             <tr data-status="<%= a.getStatus() %>" data-date="<%= a.getApptDate() %>">
-              <td style="color:var(--muted);font-size:.8rem;">#<%= a.getAppointmentId() %></td>
+              <td style="color:var(--muted);font-size:.8rem;"><%= rowNum++ %></td>
               <td><%= a.getCustomerName() %></td>
               <td><%= a.getServiceName() %><br>
-                <span style="font-size:.75rem;color:var(--muted);">$<%= String.format("%.2f", a.getServicePrice()) %></span>
+                <span style="font-size:.75rem;color:var(--muted);">Rs. <%= String.format("%.2f", a.getServicePrice()) %></span>
               </td>
               <td><%= a.getBarberName() %></td>
               <td><%= a.getApptDate() %></td>
@@ -130,7 +174,7 @@
     </div>
   </div>
 </div>
-
-<script src="${pageContext.request.contextPath}/js/admin.js"></script>
+  </div>
+</div>
 </body>
 </html>

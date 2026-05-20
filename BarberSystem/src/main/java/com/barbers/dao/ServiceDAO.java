@@ -95,6 +95,47 @@ public class ServiceDAO {
     }
 
     /**
+     * Permanently deletes a service from the database.
+     * Nullifies service_id on linked appointments first to avoid FK violation,
+     * then hard-deletes the service row.
+     *
+     * @param id the service_id to delete
+     * @return {@code true} on success
+     */
+    public boolean deleteService(int id) {
+        // Delete reviews linked to appointments of this service first
+        String deleteReviews = "DELETE FROM reviews WHERE appointment_id IN "
+                             + "(SELECT appointment_id FROM appointments WHERE service_id = ?)";
+        // Delete appointments linked to this service
+        String deleteAppts   = "DELETE FROM appointments WHERE service_id = ?";
+        // Delete the service itself
+        String deleteSvc     = "DELETE FROM services WHERE service_id = ?";
+        try (Connection c = DBConnection.getConnection()) {
+            c.setAutoCommit(false);
+            try {
+                try (PreparedStatement ps = c.prepareStatement(deleteReviews)) {
+                    ps.setInt(1, id); ps.executeUpdate();
+                }
+                try (PreparedStatement ps = c.prepareStatement(deleteAppts)) {
+                    ps.setInt(1, id); ps.executeUpdate();
+                }
+                try (PreparedStatement ps = c.prepareStatement(deleteSvc)) {
+                    ps.setInt(1, id);
+                    int rows = ps.executeUpdate();
+                    c.commit();
+                    return rows > 0;
+                }
+            } catch (SQLException e) {
+                c.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Toggles the is_active flag for a service (show/hide).
      *
      * @param id     the service_id

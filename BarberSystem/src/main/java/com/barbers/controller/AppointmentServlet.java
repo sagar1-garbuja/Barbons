@@ -6,9 +6,9 @@ import com.barbers.model.Appointment;
 import com.barbers.model.Barber;
 import com.barbers.util.SessionUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
@@ -25,20 +25,21 @@ public class AppointmentServlet extends HttpServlet {
     private final AppointmentDAO apptDAO   = new AppointmentDAO();
     private final BarberDAO      barberDAO = new BarberDAO();
 
-    // ── GET: return booked times as JSON ──────────────────────────────────
+    // ── GET: return booked times or available barbers as JSON ─────────────
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
 
         String action = req.getParameter("action");
+        res.setContentType("application/json");
+        res.setCharacterEncoding("UTF-8");
+        PrintWriter out = res.getWriter();
+
         if ("getBookedTimes".equals(action)) {
             String dateStr = req.getParameter("date");
-            res.setContentType("application/json");
-            res.setCharacterEncoding("UTF-8");
-            PrintWriter out = res.getWriter();
             try {
-                Date date = Date.valueOf(dateStr); // expects YYYY-MM-DD
+                Date date = Date.valueOf(dateStr);
                 List<String> times = apptDAO.getBookedTimesForDate(date);
                 StringBuilder sb = new StringBuilder("[");
                 for (int i = 0; i < times.size(); i++) {
@@ -50,9 +51,41 @@ public class AppointmentServlet extends HttpServlet {
             } catch (Exception e) {
                 out.print("[]");
             }
+
+        } else if ("getAvailableBarbers".equals(action)) {
+            String dateStr = req.getParameter("date");
+            String timeStr = req.getParameter("time");
+            try {
+                Date date = Date.valueOf(dateStr);
+                Time time = Time.valueOf(timeStr + ":00");
+                List<com.barbers.model.Barber> barbers =
+                        barberDAO.getAvailableBarbersForSlot(date, time);
+                StringBuilder sb = new StringBuilder("[");
+                for (int i = 0; i < barbers.size(); i++) {
+                    com.barbers.model.Barber b = barbers.get(i);
+                    sb.append("{")
+                      .append("\"id\":").append(b.getBarberId()).append(",")
+                      .append("\"name\":\"").append(escapeJson(b.getName())).append("\",")
+                      .append("\"speciality\":\"").append(escapeJson(
+                              b.getSpeciality() != null ? b.getSpeciality() : "")).append("\"")
+                      .append("}");
+                    if (i < barbers.size() - 1) sb.append(",");
+                }
+                sb.append("]");
+                out.print(sb.toString());
+            } catch (Exception e) {
+                out.print("[]");
+            }
+
         } else {
+            res.setContentType("text/html");
             res.sendRedirect(req.getContextPath() + "/customer/book.jsp");
         }
+    }
+
+    /** Minimal JSON string escaping. */
+    private String escapeJson(String s) {
+        return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     // ── POST: book or cancel ──────────────────────────────────────────────
@@ -89,7 +122,10 @@ public class AppointmentServlet extends HttpServlet {
         String serviceIdStr = req.getParameter("serviceId");
         String apptDateStr  = req.getParameter("apptDate");
         String apptTimeStr  = req.getParameter("apptTime");
+        String barberIdStr  = req.getParameter("barberId");
         String notes        = req.getParameter("notes");
+        String paymentMethod = req.getParameter("paymentMethod");
+        if (paymentMethod == null || paymentMethod.isEmpty()) paymentMethod = "cash";
 
         if (serviceIdStr == null || apptDateStr == null || apptTimeStr == null
                 || serviceIdStr.isEmpty() || apptDateStr.isEmpty() || apptTimeStr.isEmpty()) {
@@ -98,13 +134,12 @@ public class AppointmentServlet extends HttpServlet {
             return;
         }
 
-        int    serviceId = Integer.parseInt(serviceIdStr);
-        Date   apptDate;
-        Time   apptTime;
+        int  serviceId = Integer.parseInt(serviceIdStr);
+        Date apptDate;
+        Time apptTime;
 
         try {
             apptDate = Date.valueOf(apptDateStr);
-            // apptTime comes as "HH:MM" from the form
             apptTime = Time.valueOf(apptTimeStr + ":00");
         } catch (IllegalArgumentException e) {
             req.setAttribute("errorMsg", "Invalid date or time format.");
@@ -112,23 +147,41 @@ public class AppointmentServlet extends HttpServlet {
             return;
         }
 
-        // Auto-assign barber
-        Barber barber = barberDAO.getFirstAvailableBarber(apptDate, apptTime);
-        if (barber == null) {
-            req.setAttribute("errorMsg", "No barbers available for this slot. Please choose another time.");
-            req.getRequestDispatcher("/customer/book.jsp").forward(req, res);
-            return;
+        // Resolve barber — use chosen one if provided, otherwise auto-assign
+        int barberId;
+        if (barberIdStr != null && !barberIdStr.isEmpty()) {
+            barberId = Integer.parseInt(barberIdStr);
+            // Verify the chosen barber is still available for this slot
+            boolean stillFree = barberDAO.getAvailableBarbersForSlot(apptDate, apptTime)
+                    .stream().anyMatch(b -> b.getBarberId() == barberId);
+            if (!stillFree) {
+                req.setAttribute("errorMsg",
+                        "That barber is no longer available for this slot. Please choose another.");
+                req.getRequestDispatcher("/customer/book.jsp").forward(req, res);
+                return;
+            }
+        } else {
+            // Fallback: auto-assign first available
+            com.barbers.model.Barber barber = barberDAO.getFirstAvailableBarber(apptDate, apptTime);
+            if (barber == null) {
+                req.setAttribute("errorMsg",
+                        "No barbers available for this slot. Please choose another time.");
+                req.getRequestDispatcher("/customer/book.jsp").forward(req, res);
+                return;
+            }
+            barberId = barber.getBarberId();
         }
 
         int userId = (Integer) session.getAttribute("userId");
 
         Appointment appt = new Appointment();
         appt.setUserId(userId);
-        appt.setBarberId(barber.getBarberId());
+        appt.setBarberId(barberId);
         appt.setServiceId(serviceId);
         appt.setApptDate(apptDate);
         appt.setApptTime(apptTime);
         appt.setNotes(notes);
+        appt.setPaymentMethod(paymentMethod);
 
         if (apptDAO.insertAppointment(appt)) {
             res.sendRedirect(req.getContextPath() + "/customer/my-appointments.jsp?success=booked");

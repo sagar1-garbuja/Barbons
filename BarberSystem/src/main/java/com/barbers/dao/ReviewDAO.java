@@ -81,6 +81,24 @@ public class ReviewDAO {
     }
 
     /**
+     * Permanently deletes a review from the database.
+     *
+     * @param id the review_id to delete
+     * @return {@code true} on success
+     */
+    public boolean deleteReview(int id) {
+        String sql = "DELETE FROM reviews WHERE review_id = ?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Toggles the is_visible flag for a review (admin show/hide).
      *
      * @param id     the review_id

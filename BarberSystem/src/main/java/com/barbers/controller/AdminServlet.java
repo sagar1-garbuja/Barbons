@@ -5,9 +5,9 @@ import com.barbers.dao.ReviewDAO;
 import com.barbers.dao.UserDAO;
 import com.barbers.util.SessionUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 import java.io.IOException;
 
 /**
@@ -53,6 +53,11 @@ public class AdminServlet extends HttpServlet {
             int status = Integer.parseInt(req.getParameter("currentStatus"));
             reviewDAO.toggleVisibility(id, status == 1 ? 0 : 1);
             res.sendRedirect(req.getContextPath() + "/admin/dashboard.jsp");
+
+        } else if ("deleteReview".equals(action)) {
+            int id = Integer.parseInt(req.getParameter("reviewId"));
+            reviewDAO.deleteReview(id);
+            res.sendRedirect(req.getContextPath() + "/admin/dashboard.jsp?success=reviewDeleted");
 
         } else {
             res.sendRedirect(req.getContextPath() + "/admin/dashboard.jsp");

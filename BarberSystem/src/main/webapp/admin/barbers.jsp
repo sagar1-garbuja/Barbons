@@ -16,29 +16,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barbers — BARBER'S Admin</title>
+  <title>Barbers — BARBONS BARBER Admin</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
 </head>
 <body>
-
-<nav class="admin-navbar">
-  <a href="${pageContext.request.contextPath}/admin/dashboard.jsp" class="nav-logo">BARBER'S</a>
-  <ul class="admin-nav-links">
-    <li><a href="${pageContext.request.contextPath}/admin/dashboard.jsp">Dashboard</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/appointments.jsp">Appointments</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/barbers.jsp" class="active">Barbers</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/customers.jsp">Customers</a></li>
-    <li><a href="${pageContext.request.contextPath}/admin/services.jsp">Services</a></li>
-  </ul>
-  <div class="admin-nav-right">
-    <span class="admin-badge">Admin: <%= adminName %></span>
-    <a href="${pageContext.request.contextPath}/auth?action=logout" class="btn btn-outline btn-sm">Logout</a>
+<div class="admin-sidebar">
+  <div class="admin-sidebar-brand">
+    <a href="${pageContext.request.contextPath}/admin/dashboard.jsp">
+      Barbon's Barber<span>Admin Panel</span>
+    </a>
   </div>
-</nav>
+  <nav class="admin-sidebar-nav">
+    <a href="${pageContext.request.contextPath}/admin/dashboard.jsp">Admin Dashboard</a>
+    <a href="${pageContext.request.contextPath}/admin/appointments.jsp">View All Bookings</a>
+    <a href="${pageContext.request.contextPath}/admin/customers.jsp">Manage Customers</a>
+    <a href="${pageContext.request.contextPath}/admin/barbers.jsp" class="active">Manage Barbers</a>
+    <a href="${pageContext.request.contextPath}/admin/services.jsp">Manage Services</a>
+  </nav>
+</div>
 
-<div class="admin-content">
-  <div class="page-header">
+<div class="admin-main">
+  <div class="admin-header">
+    <span class="admin-header-title">Manage Barbers</span>
+    <div class="admin-header-right">
+      <span class="admin-header-user">Admin: <strong><%= adminName %></strong></span>
+      <a href="${pageContext.request.contextPath}/logout-confirm.jsp" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+<div class="page-header">
     <h1>Manage Barbers</h1>
     <p>Add new barbers and manage existing ones.</p>
   </div>
@@ -47,6 +55,8 @@
     <div class="alert alert-success">&#10003; Barber added successfully.</div>
   <% } else if ("updated".equals(successParam)) { %>
     <div class="alert alert-success">&#10003; Barber updated.</div>
+  <% } else if ("deleted".equals(successParam)) { %>
+    <div class="alert alert-success">&#10003; Barber deleted successfully.</div>
   <% } else if ("missing".equals(errorParam)) { %>
     <div class="alert alert-error">&#9888; Barber name is required.</div>
   <% } %>
@@ -60,7 +70,7 @@
         <input type="hidden" name="action" value="add">
         <div class="form-group">
           <label>Name *</label>
-          <input type="text" name="name" class="form-control" placeholder="Barber's full name" required>
+          <input type="text" name="name" class="form-control" placeholder="BARBONS BARBER full name" required>
         </div>
         <div class="form-group">
           <label>Speciality</label>
@@ -94,8 +104,6 @@
                 </div>
               </div>
               <div class="item-actions">
-                <button type="button" class="btn btn-outline btn-sm edit-toggle-btn"
-                        data-target="edit-barber-<%= b.getBarberId() %>">Edit</button>
                 <form action="${pageContext.request.contextPath}/barber" method="post" style="display:inline;">
                   <input type="hidden" name="action" value="toggle">
                   <input type="hidden" name="barberId" value="<%= b.getBarberId() %>">
@@ -104,29 +112,40 @@
                     <%= b.getIsActive() == 1 ? "Deactivate" : "Activate" %>
                   </button>
                 </form>
+                <form action="${pageContext.request.contextPath}/barber" method="post" style="display:inline;">
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="barberId" value="<%= b.getBarberId() %>">
+                  <button type="submit" class="btn btn-danger btn-sm"
+                          onclick="return confirm('Permanently delete <%= b.getName().replace("'","&#39;") %>?')">Delete</button>
+                </form>
               </div>
             </div>
-            <!-- Inline edit form -->
-            <div class="inline-edit-form" id="edit-barber-<%= b.getBarberId() %>">
-              <form action="${pageContext.request.contextPath}/barber" method="post">
-                <input type="hidden" name="action" value="update">
-                <input type="hidden" name="barberId" value="<%= b.getBarberId() %>">
-                <div class="form-group">
-                  <label>Name</label>
-                  <input type="text" name="name" class="form-control" value="<%= b.getName() %>" required>
-                </div>
-                <div class="form-group">
-                  <label>Speciality</label>
-                  <input type="text" name="speciality" class="form-control"
-                         value="<%= b.getSpeciality() != null ? b.getSpeciality() : "" %>">
-                </div>
-                <div class="form-group">
-                  <label>Bio</label>
-                  <textarea name="bio" class="form-control" rows="2"><%= b.getBio() != null ? b.getBio() : "" %></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary btn-sm">Save</button>
-              </form>
-            </div>
+            <!-- Inline edit — no JS needed, uses HTML details/summary -->
+            <details style="margin-top:8px;">
+              <summary style="cursor:pointer;font-size:.82rem;font-weight:600;color:var(--accent);
+                              padding:8px 0;list-style:none;user-select:none;">&#9998; Edit details</summary>
+              <div style="padding:16px;background:var(--surface);border:1px solid var(--border);
+                          border-radius:var(--radius);margin-top:6px;">
+                <form action="${pageContext.request.contextPath}/barber" method="post">
+                  <input type="hidden" name="action" value="update">
+                  <input type="hidden" name="barberId" value="<%= b.getBarberId() %>">
+                  <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" class="form-control" value="<%= b.getName() %>" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Speciality</label>
+                    <input type="text" name="speciality" class="form-control"
+                           value="<%= b.getSpeciality() != null ? b.getSpeciality() : "" %>">
+                  </div>
+                  <div class="form-group">
+                    <label>Bio</label>
+                    <textarea name="bio" class="form-control" rows="2"><%= b.getBio() != null ? b.getBio() : "" %></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                </form>
+              </div>
+            </details>
           </div>
         <% } %>
       </div>
@@ -134,7 +153,7 @@
 
   </div>
 </div>
-
-<script src="${pageContext.request.contextPath}/js/admin.js"></script>
+  </div>
+</div>
 </body>
 </html>

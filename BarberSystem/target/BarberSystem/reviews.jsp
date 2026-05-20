@@ -3,32 +3,22 @@
 <%
   ReviewDAO reviewDAO = new ReviewDAO();
   List<Review> reviews = reviewDAO.getVisibleReviews();
+
+  // Session state for navbar
+  String loggedInName = (String) session.getAttribute("fullName");
+  String loggedInRole = (String) session.getAttribute("role");
+  String loggedInPic  = (String) session.getAttribute("profilePicture");
 %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reviews — BARBER'S</title>
+  <title>Reviews — BARBONS BARBER</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/customer.css">
   <style>
-    body { background: var(--bg); }
-    .navbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 60px; height: 64px;
-      background: var(--surface); border-bottom: 1px solid var(--border);
-    }
-    .nav-logo {
-      font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700;
-      letter-spacing: .12em; text-transform: uppercase; color: var(--text); text-decoration: none;
-    }
-    .nav-links { display: flex; gap: 8px; list-style: none; }
-    .nav-links a {
-      padding: 8px 14px; font-size: .85rem; color: var(--muted);
-      text-decoration: none; border-radius: 6px; transition: color .2s, background .2s;
-    }
-    .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,.06); }
-
+    body { background: #F5F0E8; }
     .reviews-page { max-width: 1100px; margin: 60px auto; padding: 0 24px; }
     .page-hero { text-align: center; margin-bottom: 56px; }
     .page-hero h1 {
@@ -41,52 +31,69 @@
       display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
     }
     .review-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; padding: 28px;
+      background: #FFFFFF; border: 1px solid #D8D0C4;
+      border-radius: 10px; padding: 28px; box-shadow: 0 1px 6px rgba(0,0,0,.06);
       transition: border-color .2s, transform .2s;
     }
     .review-card:hover { border-color: rgba(255,255,255,.15); transform: translateY(-2px); }
-    .review-stars { color: #f39c12; font-size: 1.1rem; margin-bottom: 14px; }
+    .review-stars { color: #C9A84C; font-size: 1.1rem; margin-bottom: 14px; }
     .review-comment {
       font-size: .9rem; color: var(--muted); line-height: 1.7; margin-bottom: 20px;
       font-style: italic;
     }
-    .review-footer { display: flex; justify-content: space-between; align-items: flex-end; }
+    .review-
     .review-author { font-size: .88rem; font-weight: 600; color: var(--text); }
     .review-service { font-size: .75rem; color: var(--muted); margin-top: 2px; }
     .review-date { font-size: .75rem; color: var(--muted); }
-
-    footer {
-      background: var(--surface); border-top: 1px solid var(--border);
-      padding: 32px 60px; text-align: center; font-size: .82rem; color: var(--muted);
-      margin-top: 80px;
-    }
     @media (max-width: 768px) {
-      .navbar { padding: 0 20px; }
-      .nav-links { display: none; }
+      .navbar { padding: 0 16px; }
+      .customer-nav-links { display: none; }
+      .reviews-page { margin: 20px auto; }
     }
   </style>
 </head>
 <body>
 
-<nav class="navbar">
-  <a href="${pageContext.request.contextPath}/index.jsp" class="nav-logo">BARBER'S</a>
-  <ul class="nav-links">
+<nav class="customer-navbar">
+  <a href="${pageContext.request.contextPath}/index.jsp" class="nav-logo">BARBONS BARBER</a>
+  <ul class="customer-nav-links">
     <li><a href="${pageContext.request.contextPath}/index.jsp">Home</a></li>
-    <li><a href="${pageContext.request.contextPath}/customer/book.jsp">Book Appointment</a></li>
+    <% if (loggedInName != null && !"admin".equals(loggedInRole)) { %>
+      <li><a href="${pageContext.request.contextPath}/customer/dashboard.jsp">Dashboard</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/book.jsp">Book Appointment</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/my-appointments.jsp">My Appointments</a></li>
+    <% } else { %>
+      <li><a href="${pageContext.request.contextPath}/customer/book.jsp">Book Appointment</a></li>
+    <% } %>
     <li><a href="${pageContext.request.contextPath}/reviews.jsp" class="active">Reviews</a></li>
     <li><a href="${pageContext.request.contextPath}/contact.jsp">Contact</a></li>
   </ul>
-  <div style="display:flex;gap:10px;">
-    <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-outline btn-sm">Log In</a>
-    <a href="${pageContext.request.contextPath}/register.jsp" class="btn btn-primary btn-sm">Register</a>
+  <div class="customer-nav-right">
+    <% if (loggedInName != null) { %>
+      <div class="customer-nav-avatar">
+        <% if (loggedInPic != null && !loggedInPic.isEmpty()) { %>
+          <img src="<%= request.getContextPath() %>/uploads/profiles/<%= loggedInPic %>"
+               alt="Profile" style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:block;">
+        <% } else { %>&#128100;<% } %>
+      </div>
+      <span class="customer-nav-name"><%= loggedInName %></span>
+      <% if ("admin".equals(loggedInRole)) { %>
+        <a href="${pageContext.request.contextPath}/admin/dashboard.jsp" class="btn btn-outline-light btn-sm">Dashboard</a>
+      <% } else { %>
+        <a href="${pageContext.request.contextPath}/customer/profile.jsp" class="btn btn-outline-light btn-sm">Profile</a>
+      <% } %>
+      <a href="${pageContext.request.contextPath}/logout-confirm.jsp" class="btn btn-primary btn-sm">Logout</a>
+    <% } else { %>
+      <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-outline-light btn-sm">Log In</a>
+      <a href="${pageContext.request.contextPath}/register.jsp" class="btn btn-primary btn-sm">Register</a>
+    <% } %>
   </div>
 </nav>
 
 <div class="reviews-page">
   <div class="page-hero">
     <h1>Client Reviews</h1>
-    <p>See what our clients have to say about their experience at BARBER'S.</p>
+    <p>See what our clients have to say about their experience at BARBONS BARBER.</p>
   </div>
 
   <% if (reviews.isEmpty()) { %>
@@ -118,8 +125,6 @@
     </div>
   <% } %>
 </div>
-
-<footer>&copy; 2026 BARBER'S. All rights reserved.</footer>
 
 </body>
 </html>

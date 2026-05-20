@@ -14,8 +14,10 @@ public class Appointment {
     private int       serviceId;
     private Date      apptDate;
     private Time      apptTime;
-    private String    status;   // pending | confirmed | completed | cancelled
+    private String    status;          // pending | confirmed | completed | cancelled
     private String    notes;
+    private String    paymentMethod;   // cash | esewa | fonepay
+    private String    paymentStatus;   // unpaid | paid
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
@@ -70,4 +72,10 @@ public class Appointment {
 
     public String    getBarberName()                 { return barberName; }
     public void      setBarberName(String v)         { this.barberName = v; }
+
+    public String    getPaymentMethod()              { return paymentMethod; }
+    public void      setPaymentMethod(String v)      { this.paymentMethod = v; }
+
+    public String    getPaymentStatus()              { return paymentStatus; }
+    public void      setPaymentStatus(String v)      { this.paymentStatus = v; }
 }
