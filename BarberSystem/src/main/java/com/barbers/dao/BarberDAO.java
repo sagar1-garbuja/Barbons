@@ -92,6 +92,36 @@ public class BarberDAO {
     }
 
     /**
+     * Permanently deletes a barber from the database.
+     * Sets barber_id to NULL on any linked appointments first to avoid FK violation.
+     *
+     * @param id the barber_id to delete
+     * @return {@code true} on success
+     */
+    public boolean deleteBarber(int id) {
+        String nullifyAppts = "UPDATE appointments SET barber_id = NULL WHERE barber_id = ?";
+        String deleteSql    = "DELETE FROM barbers WHERE barber_id = ?";
+        try (Connection c = DBConnection.getConnection()) {
+            c.setAutoCommit(false);
+            try (PreparedStatement ps1 = c.prepareStatement(nullifyAppts);
+                 PreparedStatement ps2 = c.prepareStatement(deleteSql)) {
+                ps1.setInt(1, id);
+                ps1.executeUpdate();
+                ps2.setInt(1, id);
+                int rows = ps2.executeUpdate();
+                c.commit();
+                return rows > 0;
+            } catch (SQLException e) {
+                c.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Toggles the is_active flag for a barber.
      *
      * @param id     the barber_id
@@ -112,6 +142,70 @@ public class BarberDAO {
     }
 
     /**
+     * Returns ALL active barbers for a given slot, each tagged with whether
+     * they are already booked. Booked barbers are shown as disabled in the UI
+     * instead of disappearing.
+     *
+     * @param date the appointment date
+     * @param time the appointment time
+     * @return list of all active {@link Barber} objects, booked ones have isBooked=true
+     */
+    public List<Barber> getAllBarbersWithAvailability(Date date, Time time) {
+        List<Barber> list = new ArrayList<>();
+        String sql = "SELECT b.*, "
+                   + "  CASE WHEN a.barber_id IS NOT NULL THEN 1 ELSE 0 END AS is_booked "
+                   + "FROM barbers b "
+                   + "LEFT JOIN appointments a "
+                   + "  ON b.barber_id = a.barber_id "
+                   + "  AND a.appt_date = ? AND a.appt_time = ? "
+                   + "  AND a.status IN ('pending', 'confirmed') "
+                   + "WHERE b.is_active = 1 "
+                   + "ORDER BY b.name";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setDate(1, date);
+            ps.setTime(2, time);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Barber b = mapRow(rs);
+                b.setBooked(rs.getInt("is_booked") == 1);
+                list.add(b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Returns active barbers who are FREE at the given date and time.
+     * Used to populate the barber-selection step on the booking page.
+     *
+     * @param date the appointment date
+     * @param time the appointment time
+     * @return list of available {@link Barber} objects
+     */
+    public List<Barber> getAvailableBarbersForSlot(Date date, Time time) {
+        List<Barber> list = new ArrayList<>();
+        String sql = "SELECT * FROM barbers WHERE is_active = 1 "
+                   + "AND barber_id NOT IN ("
+                   + "  SELECT barber_id FROM appointments "
+                   + "  WHERE appt_date = ? AND appt_time = ? "
+                   + "  AND status IN ('pending', 'confirmed')"
+                   + ") ORDER BY name";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setDate(1, date);
+            ps.setTime(2, time);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
      * AUTO-ASSIGN logic: finds the first active barber who has no appointment
      * at the given date and time.
      *
@@ -124,7 +218,7 @@ public class BarberDAO {
                    + "AND barber_id NOT IN ("
                    + "  SELECT barber_id FROM appointments "
                    + "  WHERE appt_date = ? AND appt_time = ? "
-                   + "  AND status NOT IN ('cancelled')"
+                   + "  AND status IN ('pending', 'confirmed')"
                    + ") ORDER BY barber_id LIMIT 1";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {

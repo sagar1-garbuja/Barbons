@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.barbers.dao.UserDAO, com.barbers.model.User" %>
 <%
-  // ── Session guard ──
   if (session.getAttribute("userId") == null || !"customer".equals(session.getAttribute("role"))) {
     response.sendRedirect(request.getContextPath() + "/login.jsp");
     return;
@@ -12,6 +11,17 @@
   UserDAO userDAO = new UserDAO();
   User user = userDAO.getUserById(userId);
 
+  // Sync profile picture into session so sidebar stays current
+  String picFile = (user != null && user.getProfilePicture() != null)
+                   ? user.getProfilePicture() : null;
+  if (picFile != null) session.setAttribute("profilePicture", picFile);
+
+  String picUrl = (picFile != null)
+      ? request.getContextPath() + "/uploads/profiles/" + picFile
+      : null;
+
+  String picSuccess     = (String) request.getAttribute("picSuccess");
+  String picError       = (String) request.getAttribute("picError");
   String profileSuccess = (String) request.getAttribute("profileSuccess");
   String profileError   = (String) request.getAttribute("profileError");
   String pwdSuccess     = (String) request.getAttribute("pwdSuccess");
@@ -22,40 +32,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile — BARBER'S</title>
+  <title>Profile — BARBONS BARBER</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/customer.css">
+  <style>
+    /* ── Profile picture card ── */
+    .pic-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .pic-preview-wrap { flex-shrink: 0; }
+    .pic-preview {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--border);
+      display: block;
+    }
+    .pic-placeholder {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 3px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem; color: var(--muted);
+    }
+    .pic-info { flex: 1; }
+    .pic-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--text); margin-bottom: 4px;
+    }
+    .pic-info p { font-size: .85rem; color: var(--muted); margin-bottom: 16px; }
+    .pic-upload-row {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    /* Style the native file input to look like a button */
+    input[type="file"].pic-file-input {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem; color: var(--muted);
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      cursor: pointer;
+      max-width: 260px;
+    }
+    input[type="file"].pic-file-input::-webkit-file-upload-button {
+      background: var(--nav-bg); color: #fff;
+      border: none; border-radius: 4px;
+      padding: 6px 12px; font-size: .82rem;
+      cursor: pointer; margin-right: 10px;
+    }
+  </style>
 </head>
 <body>
 <div class="customer-layout">
 
-  <!-- ── SIDEBAR ── -->
-  <aside class="sidebar">
-    <div class="sidebar-brand"><span class="logo">BARBER'S</span></div>
-    <div class="sidebar-user">
-      <div class="user-avatar">&#128100;</div>
-      <div class="user-name"><%= fullName %></div>
-      <div class="user-role">Customer</div>
+  <!-- ── TOP NAVBAR ── -->
+  <nav class="customer-navbar">
+    <a href="${pageContext.request.contextPath}/customer/dashboard.jsp" class="nav-logo">BARBONS BARBER</a>
+    <ul class="customer-nav-links">
+      <li><a href="${pageContext.request.contextPath}/index.jsp">Home</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/dashboard.jsp">Dashboard</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/book.jsp">Book Appointment</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/my-appointments.jsp">My Appointments</a></li>
+      <li><a href="${pageContext.request.contextPath}/reviews.jsp">Reviews</a></li>
+      <li><a href="${pageContext.request.contextPath}/contact.jsp">Contact</a></li>
+    </ul>
+    <div class="customer-nav-right">
+      <div class="customer-nav-avatar">
+        <% if (picUrl != null) { %>
+          <img src="<%= picUrl %>" alt="Profile"
+               style="width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;">
+        <% } else { %>&#128100;<% } %>
+      </div>
+      <span class="customer-nav-name"><%= fullName %></span>
+      <a href="${pageContext.request.contextPath}/customer/profile.jsp" class="btn btn-outline-light btn-sm active">Profile</a>
+      <a href="${pageContext.request.contextPath}/logout-confirm.jsp" class="btn btn-primary btn-sm">Logout</a>
     </div>
-    <nav class="sidebar-nav">
-      <a href="${pageContext.request.contextPath}/customer/dashboard.jsp">&#9632; Dashboard</a>
-      <a href="${pageContext.request.contextPath}/customer/book.jsp">&#43; Book Appointment</a>
-      <a href="${pageContext.request.contextPath}/customer/my-appointments.jsp">&#128197; My Appointments</a>
-      <a href="${pageContext.request.contextPath}/reviews.jsp">&#9733; Reviews</a>
-      <a href="${pageContext.request.contextPath}/customer/profile.jsp" class="active">&#9881; Profile</a>
-    </nav>
-    <div class="sidebar-footer">
-      <a href="${pageContext.request.contextPath}/auth?action=logout">&#8594; Logout</a>
-    </div>
-  </aside>
+  </nav>
 
   <!-- ── MAIN ── -->
   <main class="main-content">
     <div class="page-header">
       <h1>My Profile</h1>
-      <p>Update your personal information and password.</p>
+      <p>Update your photo, personal information, and password.</p>
     </div>
 
+    <!-- ── PROFILE PICTURE CARD ── -->
+    <div class="pic-card">
+      <div class="pic-preview-wrap">
+        <% if (picUrl != null) { %>
+          <img src="<%= picUrl %>" alt="Profile picture" class="pic-preview">
+        <% } else { %>
+          <div class="pic-placeholder">&#128100;</div>
+        <% } %>
+      </div>
+
+      <div class="pic-info">
+        <h3><%= fullName %></h3>
+        <p>JPG, PNG, GIF or WEBP &nbsp;·&nbsp; Max 3 MB</p>
+
+        <% if (picSuccess != null) { %>
+          <div class="alert alert-success" style="margin-bottom:12px;">&#10003; <%= picSuccess %></div>
+        <% } %>
+        <% if (picError != null) { %>
+          <div class="alert alert-error" style="margin-bottom:12px;">&#9888; <%= picError %></div>
+        <% } %>
+
+        <form action="${pageContext.request.contextPath}/profile"
+              method="post" enctype="multipart/form-data">
+          <input type="hidden" name="action" value="uploadPicture">
+          <div class="pic-upload-row">
+            <input type="file" name="profilePicture" class="pic-file-input"
+                   accept="image/jpeg,image/png,image/gif,image/webp" required>
+            <button type="submit" class="btn btn-primary btn-sm">Save Photo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── EDIT PROFILE + CHANGE PASSWORD ── -->
     <div class="profile-grid">
 
       <!-- Edit Profile -->
@@ -121,6 +225,8 @@
     </div>
   </main>
 
+
+<!-- -- MOBILE BOTTOM NAV -- -->
 </div>
 </body>
 </html>

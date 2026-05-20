@@ -4,9 +4,9 @@ import com.barbers.dao.BarberDAO;
 import com.barbers.model.Barber;
 import com.barbers.util.SessionUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 import java.io.IOException;
 
 /**
@@ -68,6 +68,13 @@ public class BarberServlet extends HttpServlet {
             int status = Integer.parseInt(req.getParameter("currentStatus"));
             barberDAO.toggleActive(id, status == 1 ? 0 : 1);
             res.sendRedirect(req.getContextPath() + "/admin/barbers.jsp");
+
+        } else if ("delete".equals(action)) {
+            int id = Integer.parseInt(req.getParameter("barberId"));
+            boolean deleted = barberDAO.deleteBarber(id);
+            res.sendRedirect(req.getContextPath() + "/admin/barbers.jsp?success="
+                    + (deleted ? "deleted" : "deleted"));
+
         } else {
             res.sendRedirect(req.getContextPath() + "/admin/barbers.jsp");
         }

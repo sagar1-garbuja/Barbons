@@ -19,9 +19,22 @@ public class AppointmentDAO {
      * @return {@code true} on success
      */
     public boolean insertAppointment(Appointment a) {
+        // Ensure payment columns exist (auto-migrate)
+        try (Connection c = DBConnection.getConnection()) {
+            try (PreparedStatement ps = c.prepareStatement(
+                    "ALTER TABLE appointments ADD COLUMN IF NOT EXISTS payment_method VARCHAR(20) DEFAULT 'cash'")) {
+                ps.executeUpdate();
+            } catch (SQLException ignored) {}
+            try (PreparedStatement ps = c.prepareStatement(
+                    "ALTER TABLE appointments ADD COLUMN IF NOT EXISTS payment_status VARCHAR(20) DEFAULT 'unpaid'")) {
+                ps.executeUpdate();
+            } catch (SQLException ignored) {}
+        } catch (SQLException ignored) {}
+
         String sql = "INSERT INTO appointments "
-                   + "(user_id, barber_id, service_id, appt_date, appt_time, status, notes, created_at, updated_at) "
-                   + "VALUES (?, ?, ?, ?, ?, 'pending', ?, NOW(), NOW())";
+                   + "(user_id, barber_id, service_id, appt_date, appt_time, status, notes, "
+                   + "payment_method, payment_status, created_at, updated_at) "
+                   + "VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, NOW(), NOW())";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, a.getUserId());
@@ -30,6 +43,9 @@ public class AppointmentDAO {
             ps.setDate(4, a.getApptDate());
             ps.setTime(5, a.getApptTime());
             ps.setString(6, a.getNotes());
+            ps.setString(7, a.getPaymentMethod() != null ? a.getPaymentMethod() : "cash");
+            ps.setString(8, "esewa".equals(a.getPaymentMethod()) || "fonepay".equals(a.getPaymentMethod())
+                            ? "paid" : "unpaid");
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -127,7 +143,7 @@ public class AppointmentDAO {
         // equals the total number of active barbers.
         String sql = "SELECT TIME_FORMAT(appt_time, '%H:%i') AS t "
                    + "FROM appointments "
-                   + "WHERE appt_date = ? AND status NOT IN ('cancelled') "
+                   + "WHERE appt_date = ? AND status IN ('pending', 'confirmed') "
                    + "GROUP BY appt_time "
                    + "HAVING COUNT(DISTINCT barber_id) >= ("
                    + "  SELECT COUNT(*) FROM barbers WHERE is_active = 1"
@@ -172,8 +188,10 @@ public class AppointmentDAO {
      * @return {@code true} on success
      */
     public boolean cancelByUser(int id, int userId) {
+        // Only allow cancellation of PENDING appointments.
+        // Once admin confirms (status = 'confirmed'), customer cannot cancel.
         String sql = "UPDATE appointments SET status='cancelled', updated_at=NOW() "
-                   + "WHERE appointment_id=? AND user_id=? AND status IN ('pending','confirmed')";
+                   + "WHERE appointment_id=? AND user_id=? AND status = 'pending'";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -304,6 +322,8 @@ public class AppointmentDAO {
         try { a.setServiceName(rs.getString("service_name")); }   catch (SQLException ignored) {}
         try { a.setServicePrice(rs.getDouble("service_price")); }  catch (SQLException ignored) {}
         try { a.setBarberName(rs.getString("barber_name")); }      catch (SQLException ignored) {}
+        try { a.setPaymentMethod(rs.getString("payment_method")); } catch (SQLException ignored) {}
+        try { a.setPaymentStatus(rs.getString("payment_status")); } catch (SQLException ignored) {}
         return a;
     }
 }

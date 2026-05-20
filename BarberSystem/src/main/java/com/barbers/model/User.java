@@ -10,9 +10,10 @@ public class User {
     private String    fullName;
     private String    email;
     private String    phone;
-    private String    password;   // MD5 hash
-    private String    role;       // "customer" | "admin"
-    private int       isActive;   // 1 = active, 0 = disabled
+    private String    password;        // MD5 hash
+    private String    role;            // "customer" | "admin"
+    private int       isActive;        // 1 = active, 0 = disabled
+    private String    profilePicture;  // filename stored in uploads/profiles/
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
@@ -50,6 +51,9 @@ public class User {
 
     public int       getIsActive()            { return isActive; }
     public void      setIsActive(int v)       { this.isActive = v; }
+
+    public String    getProfilePicture()           { return profilePicture; }
+    public void      setProfilePicture(String v)   { this.profilePicture = v; }
 
     public Timestamp getCreatedAt()           { return createdAt; }
     public void      setCreatedAt(Timestamp v){ this.createdAt = v; }

@@ -11,6 +11,7 @@ public class Barber {
     private String    speciality;
     private String    bio;
     private int       isActive;
+    private boolean   booked;   // transient — true if already booked for a given slot
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
@@ -45,4 +46,7 @@ public class Barber {
 
     public Timestamp getUpdatedAt()             { return updatedAt; }
     public void      setUpdatedAt(Timestamp v)  { this.updatedAt = v; }
+
+    public boolean   isBooked()                 { return booked; }
+    public void      setBooked(boolean v)       { this.booked = v; }
 }

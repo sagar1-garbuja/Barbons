@@ -1,6 +1,7 @@
 /* ============================================================
-   BARBER'S — Global / Main CSS
-   Theme: near-black background, off-white text, white accents
+   BARBONS BARBER — Global / Main CSS
+   Theme: Black navbar/footer · Warm cream body · Gold accent
+   Fonts: Playfair Display (headings) · DM Sans (body)
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap');
@@ -8,20 +9,37 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #0a0a0a;
-  --surface:   #1a1a1a;
-  --surface2:  #222222;
-  --border:    #2e2e2e;
-  --text:      #f5f5f0;
-  --muted:     #b0b0a8;
-  --accent:    #ffffff;
-  --pending:   #f39c12;
-  --confirmed: #2980b9;
-  --completed: #27ae60;
-  --cancelled: #c0392b;
+  /* ── Page backgrounds ── */
+  --bg:        #F5F0E8;   /* warm cream — main page bg          */
+  --surface:   #FFFFFF;   /* white — cards, panels              */
+  --surface2:  #EDE8DF;   /* slightly darker cream — inputs     */
+  --nav-bg:    #0D0D0D;   /* near-black — navbar, sidebar, footer */
+
+  /* ── Borders ── */
+  --border:    #D8D0C4;   /* warm grey border                   */
+  --border-dark: #2A2A2A; /* dark border for nav elements       */
+
+  /* ── Typography ── */
+  --text:      #1A1A1A;   /* near-black body text               */
+  --text-light:#FFFFFF;   /* white text on dark surfaces        */
+  --muted:     #7A7060;   /* warm grey muted text               */
+
+  /* ── Accent ── */
+  --accent:    #C9A84C;   /* warm gold — primary accent         */
+  --accent-hover: #B8943A;/* darker gold on hover               */
+  --accent-light: #F5EDD6;/* pale gold tint for backgrounds     */
+
+  /* ── Status colours ── */
+  --pending:   #D4860A;   /* amber                              */
+  --confirmed: #2E6DA4;   /* blue                               */
+  --completed: #2A7A4B;   /* green                              */
+  --cancelled: #B03A2E;   /* red                                */
+
+  /* ── Misc ── */
   --radius:    10px;
   --radius-sm: 6px;
-  --shadow:    0 4px 24px rgba(0,0,0,.5);
+  --shadow:    0 2px 16px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.12);
   --ease:      .2s ease;
 }
 
@@ -38,19 +56,19 @@ body {
 h1, h2, h3, h4 {
   font-family: 'Playfair Display', serif;
   line-height: 1.2;
+  color: var(--text);
 }
 
 a { color: inherit; text-decoration: none; }
-
 img { max-width: 100%; display: block; }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
 /* ── Utility ── */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-.text-muted { color: var(--muted); }
+.text-muted  { color: var(--muted); }
 .text-center { text-align: center; }
 
 /* ── Buttons ── */
@@ -62,26 +80,36 @@ img { max-width: 100%; display: block; }
   text-decoration: none; white-space: nowrap;
 }
 .btn-primary {
-  background: var(--accent); color: #000;
+  background: var(--nav-bg); color: #ffffff;
 }
-.btn-primary:hover { background: #e0e0e0; transform: translateY(-1px); }
+.btn-primary:hover { background: #2a2a2a; transform: translateY(-1px); box-shadow: var(--shadow); }
 
 .btn-outline {
   background: transparent; color: var(--text);
   border: 1.5px solid var(--border);
 }
-.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-outline:hover { border-color: var(--nav-bg); color: var(--nav-bg); }
 
-.btn-danger  { background: var(--cancelled); color: #fff; }
-.btn-danger:hover  { background: #a93226; }
-.btn-success { background: var(--completed); color: #fff; }
-.btn-success:hover { background: #1e8449; }
-.btn-info    { background: var(--confirmed); color: #fff; }
-.btn-info:hover    { background: #1f618d; }
-.btn-warning { background: var(--pending); color: #000; }
-.btn-warning:hover { background: #d68910; }
+/* btn-outline-light — for use on dark/black backgrounds (hero, navbar, footer) */
+.btn-outline-light {
+  background: transparent; color: #FFFFFF;
+  border: 1.5px solid rgba(255,255,255,.5);
+}
+.btn-outline-light:hover {
+  background: rgba(255,255,255,.1);
+  border-color: #FFFFFF; color: #FFFFFF;
+}
 
-.btn-sm { padding: 6px 14px; font-size: .8rem; }
+.btn-danger  { background: #B03A2E; color: #fff; }
+.btn-danger:hover  { background: #922E24; }
+.btn-success { background: #2A7A4B; color: #fff; }
+.btn-success:hover { background: #1F5C38; }
+.btn-info    { background: #2E6DA4; color: #fff; }
+.btn-info:hover    { background: #245A8A; }
+.btn-warning { background: var(--accent); color: #fff; }
+.btn-warning:hover { background: var(--accent-hover); }
+
+.btn-sm   { padding: 6px 14px; font-size: .8rem; }
 .btn-full { width: 100%; }
 
 /* ── Status badges ── */
@@ -89,10 +117,10 @@ img { max-width: 100%; display: block; }
   display: inline-block; padding: 3px 10px; border-radius: 20px;
   font-size: .75rem; font-weight: 600; text-transform: capitalize;
 }
-.badge-pending   { background: rgba(243,156,18,.15);  color: var(--pending); }
-.badge-confirmed { background: rgba(41,128,185,.15);  color: var(--confirmed); }
-.badge-completed { background: rgba(39,174,96,.15);   color: var(--completed); }
-.badge-cancelled { background: rgba(192,57,43,.15);   color: var(--cancelled); }
+.badge-pending   { background: #FEF3E2; color: #D4860A; border: 1px solid #F5C97A; }
+.badge-confirmed { background: #E8F0FA; color: #2E6DA4; border: 1px solid #A8C4E8; }
+.badge-completed { background: #E6F4EC; color: #2A7A4B; border: 1px solid #8ECBA8; }
+.badge-cancelled { background: #FAEAE8; color: #B03A2E; border: 1px solid #E8A89E; }
 
 /* ── Alert boxes ── */
 .alert {
@@ -100,26 +128,30 @@ img { max-width: 100%; display: block; }
   font-size: .88rem; margin-bottom: 16px;
   display: flex; align-items: center; gap: 10px;
 }
-.alert-error   { background: rgba(192,57,43,.15);  border: 1px solid var(--cancelled); color: #e74c3c; }
-.alert-success { background: rgba(39,174,96,.15);  border: 1px solid var(--completed); color: #2ecc71; }
-.alert-info    { background: rgba(41,128,185,.15); border: 1px solid var(--confirmed); color: #3498db; }
+.alert-error   { background: #FAEAE8; border: 1px solid #E8A89E; color: #922E24; }
+.alert-success { background: #E6F4EC; border: 1px solid #8ECBA8; color: #1F5C38; }
+.alert-info    { background: #E8F0FA; border: 1px solid #A8C4E8; color: #245A8A; }
 
 /* ── Forms ── */
 .form-group { margin-bottom: 18px; }
 .form-group label {
-  display: block; font-size: .82rem; font-weight: 500;
+  display: block; font-size: .82rem; font-weight: 600;
   color: var(--muted); margin-bottom: 6px; letter-spacing: .03em;
+  text-transform: uppercase;
 }
 .form-control {
   width: 100%; padding: 12px 14px;
-  background: var(--surface2); border: 1px solid var(--border);
+  background: var(--surface); border: 1.5px solid var(--border);
   border-radius: var(--radius-sm); color: var(--text);
   font-family: 'DM Sans', sans-serif; font-size: .9rem;
-  transition: border-color var(--ease);
+  transition: border-color var(--ease), box-shadow var(--ease);
   outline: none;
 }
-.form-control:focus { border-color: var(--accent); }
-.form-control::placeholder { color: #555; }
+.form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201,168,76,.15);
+}
+.form-control::placeholder { color: #B8B0A4; }
 textarea.form-control { resize: vertical; min-height: 90px; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -129,35 +161,295 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 
 /* ── Tables ── */
 .table-wrap { overflow-x: auto; }
-table {
-  width: 100%; border-collapse: collapse;
-  font-size: .88rem;
-}
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
 thead th {
   background: var(--surface2); color: var(--muted);
-  font-weight: 600; font-size: .78rem; letter-spacing: .06em;
+  font-weight: 700; font-size: .75rem; letter-spacing: .07em;
   text-transform: uppercase; padding: 12px 16px; text-align: left;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
 }
 tbody tr {
   border-bottom: 1px solid var(--border);
   transition: background var(--ease);
 }
-tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
-tbody tr:hover { background: rgba(255,255,255,.04); }
-tbody td { padding: 12px 16px; vertical-align: middle; }
+tbody tr:nth-child(even) { background: rgba(0,0,0,.02); }
+tbody tr:hover { background: var(--accent-light); }
+tbody td { padding: 12px 16px; vertical-align: middle; color: var(--text); }
 
 /* ── Cards ── */
 .card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 24px;
+  box-shadow: var(--shadow);
 }
 
 /* ── Divider ── */
 hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
-/* ── Responsive ── */
-@media (max-width: 768px) {
-  .form-row { grid-template-columns: 1fr; }
-  .container { padding: 0 16px; }
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE
+══════════════════════════════════════════ */
+/* @media (max-width: 768px) {
+  .form-row    { grid-template-columns: 1fr; }
+  .container   { padding: 0 14px; }
+  .table-wrap  { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table        { min-width: 480px; }
+  .stat-grid   { grid-template-columns: 1fr 1fr; }
+  .card        { padding: 14px; }
+  .btn         { padding: 10px 16px; font-size: .85rem; }
+  .btn-sm      { padding: 5px 10px; font-size: .78rem; }
+}
+@media (max-width: 480px) {
+  .stat-grid   { grid-template-columns: 1fr 1fr; }
+  .container   { padding: 0 12px; }
+} */
+ /* ============================================================
+   BARBONS BARBER — MOBILE RESPONSIVE CSS
+   Add this file AFTER your main stylesheet.
+   Targets: ≤900px (tablet), ≤680px (mobile), ≤400px (small)
+   ============================================================ */
+
+
+/* =============================================
+   TABLET & SMALL DESKTOP  (max-width: 900px)
+   ============================================= */
+@media (max-width: 900px) {
+
+  /* --- AUTH PAGES (Login / Register) --- */
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+  .auth-hero {
+    min-height: 250px;
+    padding: 28px;
+  }
+  .auth-hero-logo {
+    top: 20px;
+    left: 28px;
+    font-size: 12px;
+  }
+  .auth-hero h2 {
+    font-size: 28px;
+  }
+  .auth-form-side {
+    padding: 40px 28px;
+  }
+
+  /* --- DASHBOARD STATS --- */
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* --- BOOKING PAGE: steps nav wraps to 2 rows --- */
+  .steps-nav {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .steps-nav .step-tab:nth-child(3) {
+    border-right: none;
+  }
+  .steps-nav .step-tab:nth-child(4) {
+    border-top: 1.5px solid #e8e2d8;
+  }
+  .steps-nav .step-tab:nth-child(5) {
+    border-top: 1.5px solid #e8e2d8;
+    border-right: none;
+  }
+
+  /* --- BOOKING: summary drops below --- */
+  .booking-layout {
+    grid-template-columns: 1fr;
+  }
+  .booking-summary {
+    position: static;
+  }
+
+  /* --- CONTACT: stacks vertically --- */
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- PROFILE: stacks vertically --- */
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =============================================
+   MOBILE  (max-width: 680px)
+   ============================================= */
+@media (max-width: 680px) {
+
+  /* --- NAVBAR --- */
+  .nav-links {
+    display: none;                    /* hide desktop nav links */
+  }
+  .nav-user span,
+  .btn-profile,
+  .btn-logout-nav {
+    display: none;                    /* hide desktop user controls */
+  }
+  .hamburger {
+    display: flex;                    /* show hamburger icon */
+  }
+  .nav-drawer {
+    display: block;                   /* enable mobile drawer */
+  }
+
+  /* --- AUTH PAGES --- */
+  .auth-form-side {
+    padding: 32px 20px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;       /* email + phone stack */
+  }
+
+  /* --- PAGE CONTENT PADDING --- */
+  .page-content {
+    padding: 28px 16px 48px;
+  }
+  .card {
+    padding: 20px;
+  }
+
+  /* --- DASHBOARD STATS: single column, horizontal layout --- */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .stat-card {
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .stat-card .stat-label {
+    margin-bottom: 0;
+  }
+  .stat-card .stat-value {
+    font-size: 32px;
+  }
+
+  /* --- BOOKING STEPS: full vertical stack --- */
+  .steps-nav {
+    grid-template-columns: 1fr;
+    border-radius: 12px;
+  }
+  .step-tab {
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: 1.5px solid #e8e2d8;
+  }
+  .step-tab:last-child {
+    border-bottom: none;
+  }
+
+  /* --- BOOKING SUMMARY --- */
+  .booking-summary {
+    padding: 22px;
+  }
+
+  /* --- PROFILE PHOTO SECTION --- */
+  .profile-photo-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* --- LOGOUT MODAL BUTTONS --- */
+  .modal-btns {
+    flex-direction: column;
+  }
+  .logout-modal {
+    padding: 32px 24px 28px;
+  }
+
+  /* --- CONTACT --- */
+  .contact-grid {
+    gap: 20px;
+  }
+
+  /* --- HOME HERO BUTTONS --- */
+  .home-hero-btns {
+    flex-direction: column;
+    align-items: center;
+  }
+  .home-hero-btns .btn {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* --- REVIEWS --- */
+  .reviews-hero {
+    padding: 40px 16px 32px;
+  }
+  .reviews-hero h1 {
+    font-size: 32px;
+  }
+}
+
+
+/* =============================================
+   SMALL PHONES  (max-width: 400px)
+   ============================================= */
+@media (max-width: 400px) {
+
+  /* --- AUTH HERO --- */
+  .auth-hero {
+    min-height: 200px;
+  }
+  .auth-hero h2 {
+    font-size: 24px;
+  }
+
+  /* --- NAVBAR BRAND --- */
+  .nav-brand {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  /* --- PAGE HEADERS --- */
+  .page-header h1 {
+    font-size: 24px;
+  }
+
+  /* --- CARDS --- */
+  .card {
+    padding: 16px;
+  }
+
+  /* --- PROFILE PHOTO ACTIONS --- */
+  .profile-photo-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* --- BOOKING SUMMARY --- */
+  .booking-summary {
+    padding: 18px;
+  }
+  .booking-summary h3 {
+    font-size: 17px;
+  }
+
+  /* --- CONTACT FORM --- */
+  .contact-page-title {
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  /* --- LOGOUT MODAL --- */
+  .logout-modal {
+    padding: 28px 18px 22px;
+    border-radius: 16px;
+  }
+  .logout-modal h2 {
+    font-size: 22px;
+  }
+
+  /* --- FOOTER --- */
+  .site-footer {
+    font-size: 10px;
+    padding: 16px;
+  }
 }

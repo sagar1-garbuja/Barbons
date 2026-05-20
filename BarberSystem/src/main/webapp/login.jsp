@@ -12,7 +12,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — BARBER'S</title>
+  <title>Login — BARBONS BARBER</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/auth.css">
 </head>
 <body>
@@ -21,27 +21,13 @@
 
   <!-- ── LEFT PANEL ── -->
   <div class="auth-left">
-    <div class="auth-logo">BARBER'S</div>
+    <div class="auth-logo">BARBONS BARBER</div>
 
     <div class="auth-left-body">
       <h1>Welcome <em>back.</em></h1>
       <p>Manage your bookings, track appointments, and keep your style on point — all in one place.</p>
     </div>
 
-    <div class="auth-stats">
-      <div class="auth-stat">
-        <strong>5+</strong>
-        <span>Barbers</span>
-      </div>
-      <div class="auth-stat">
-        <strong>10+</strong>
-        <span>Services</span>
-      </div>
-      <div class="auth-stat">
-        <strong>&#9733; 4.9</strong>
-        <span>Rating</span>
-      </div>
-    </div>
   </div>
 
   <!-- ── RIGHT PANEL ── -->
@@ -63,7 +49,7 @@
       </div>
     <% } %>
 
-    <form id="loginForm" action="${pageContext.request.contextPath}/auth" method="post" novalidate>
+    <form id="loginForm" action="${pageContext.request.contextPath}/auth" method="post">
       <input type="hidden" name="action" value="login">
 
       <!-- Email -->
@@ -73,7 +59,6 @@
                placeholder="you@example.com"
                value="<%= prefillEmail %>"
                autocomplete="email">
-        <div class="field-error" id="err-email"></div>
       </div>
 
       <!-- Password -->
@@ -82,9 +67,7 @@
         <div class="password-wrap">
           <input type="password" id="password" name="password" class="form-control"
                  placeholder="Your password" autocomplete="current-password">
-          <button type="button" class="eye-toggle" aria-label="Toggle password visibility">&#128065;</button>
         </div>
-        <div class="field-error" id="err-password"></div>
       </div>
 
       <!-- Remember me -->
@@ -104,7 +87,5 @@
   </div>
 
 </div>
-
-<script src="${pageContext.request.contextPath}/js/auth.js"></script>
 </body>
 </html>

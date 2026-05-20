@@ -20,7 +20,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Appointments — BARBER'S</title>
+  <title>My Appointments — BARBONS BARBER</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/customer.css">
   <style>
@@ -46,34 +46,40 @@
     }
     .star-rating input:checked ~ label,
     .star-rating label:hover,
-    .star-rating label:hover ~ label { color: #f39c12; }
+    .star-rating label:hover ~ label { color: #aaaaaa; }
     .star-rating { flex-direction: row-reverse; }
     .star-rating label:hover,
-    .star-rating label:hover ~ label { color: #f39c12; }
+    .star-rating label:hover ~ label { color: #aaaaaa; }
   </style>
 </head>
 <body>
 <div class="customer-layout">
 
-  <!-- ── SIDEBAR ── -->
-  <aside class="sidebar">
-    <div class="sidebar-brand"><span class="logo">BARBER'S</span></div>
-    <div class="sidebar-user">
-      <div class="user-avatar">&#128100;</div>
-      <div class="user-name"><%= fullName %></div>
-      <div class="user-role">Customer</div>
+  <!-- ── TOP NAVBAR ── -->
+  <nav class="customer-navbar">
+    <a href="${pageContext.request.contextPath}/customer/dashboard.jsp" class="nav-logo">BARBONS BARBER</a>
+    <ul class="customer-nav-links">
+      <li><a href="${pageContext.request.contextPath}/index.jsp">Home</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/dashboard.jsp">Dashboard</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/book.jsp">Book Appointment</a></li>
+      <li><a href="${pageContext.request.contextPath}/customer/my-appointments.jsp" class="active">My Appointments</a></li>
+      <li><a href="${pageContext.request.contextPath}/reviews.jsp">Reviews</a></li>
+      <li><a href="${pageContext.request.contextPath}/contact.jsp">Contact</a></li>
+    </ul>
+    <div class="customer-nav-right">
+      <div class="customer-nav-avatar">
+        <%
+          String _pic = (String) session.getAttribute("profilePicture");
+          if (_pic != null && !_pic.isEmpty()) { %>
+          <img src="<%= request.getContextPath() %>/uploads/profiles/<%= _pic %>"
+               alt="Profile" style="width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;">
+        <% } else { %>&#128100;<% } %>
+      </div>
+      <span class="customer-nav-name"><%= fullName %></span>
+      <a href="${pageContext.request.contextPath}/customer/profile.jsp" class="btn btn-outline-light btn-sm">Profile</a>
+      <a href="${pageContext.request.contextPath}/logout-confirm.jsp" class="btn btn-primary btn-sm">Logout</a>
     </div>
-    <nav class="sidebar-nav">
-      <a href="${pageContext.request.contextPath}/customer/dashboard.jsp">&#9632; Dashboard</a>
-      <a href="${pageContext.request.contextPath}/customer/book.jsp">&#43; Book Appointment</a>
-      <a href="${pageContext.request.contextPath}/customer/my-appointments.jsp" class="active">&#128197; My Appointments</a>
-      <a href="${pageContext.request.contextPath}/reviews.jsp">&#9733; Reviews</a>
-      <a href="${pageContext.request.contextPath}/customer/profile.jsp">&#9881; Profile</a>
-    </nav>
-    <div class="sidebar-footer">
-      <a href="${pageContext.request.contextPath}/auth?action=logout">&#8594; Logout</a>
-    </div>
-  </aside>
+  </nav>
 
   <!-- ── MAIN ── -->
   <main class="main-content">
@@ -118,12 +124,12 @@
             </thead>
             <tbody>
               <% for (Appointment a : appointments) {
-                   boolean canCancel = "pending".equals(a.getStatus()) || "confirmed".equals(a.getStatus());
+                   boolean canCancel = "pending".equals(a.getStatus()); // only pending — confirmed means admin accepted
                    boolean canReview = "completed".equals(a.getStatus()) && !apptDAO.hasReview(a.getAppointmentId());
               %>
                 <tr>
                   <td><strong><%= a.getServiceName() %></strong><br>
-                    <span style="font-size:.78rem;color:var(--muted);">$<%= String.format("%.2f", a.getServicePrice()) %></span>
+                    <span style="font-size:.78rem;color:var(--muted);">Rs. <%= String.format("%.2f", a.getServicePrice()) %></span>
                   </td>
                   <td><%= a.getBarberName() %></td>
                   <td><%= a.getApptDate() %></td>
@@ -137,6 +143,8 @@
                         <button type="submit" class="btn btn-danger btn-sm"
                                 onclick="return confirm('Cancel this appointment?')">Cancel</button>
                       </form>
+                    <% } else if ("confirmed".equals(a.getStatus())) { %>
+                      <span style="font-size:.78rem;color:var(--confirmed);font-weight:600;">&#10003; Accepted</span>
                     <% } %>
                     <% if (canReview) { %>
                       <button type="button" class="btn btn-warning btn-sm"
@@ -144,7 +152,7 @@
                         Write Review
                       </button>
                     <% } %>
-                    <% if (!canCancel && !canReview) { %>
+                    <% if (!canCancel && !canReview && !"confirmed".equals(a.getStatus())) { %>
                       <span style="color:var(--muted);font-size:.8rem;">—</span>
                     <% } %>
                   </td>
