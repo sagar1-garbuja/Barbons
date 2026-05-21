@@ -1,0 +1,238 @@
+/* ============================================================
+   BARBON'S BARBER — APPOINTMENT PAGE  (Pure CSS, no JS)
+   All interactivity via checkbox/radio + CSS sibling selectors
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:       #C9A84C;
+  --gold-light: #e8c97a;
+  --gold-dark:  #a07830;
+  --dark:       #111111;
+  --mid:        #333333;
+  --border:     #e5e5e5;
+  --bg:         #f4f4f4;
+  --white:      #ffffff;
+  --muted:      #888888;
+  --red:        #e53e3e;
+  --red-bg:     #fff5f5;
+  --radius:     12px;
+  --radius-sm:  8px;
+  --shadow:     0 2px 16px rgba(0,0,0,.08);
+  --shadow-lg:  0 8px 40px rgba(0,0,0,.14);
+  --ease:       .18s ease;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; }
+
+/* ── scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.nav-toggle, .nav-toggle-label { display: none; }
+
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 64px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 8px rgba(0,0,0,.06);
+}
+
+.brand-logo {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: 1.1rem;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a {
+  text-decoration: none; font-size: .8rem; font-weight: 500;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+  transition: color var(--ease);
+}
+.nav-links a:hover, .nav-links a.active { color: var(--dark); }
+.nav-links a.active { font-weight: 700; border-bottom: 2px solid var(--gold); padding-bottom: 2px; }
+
+.btn-outline {
+  text-decoration: none; font-size: .8rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--dark); border: 1.5px solid var(--dark);
+  padding: 8px 20px; border-radius: 6px;
+  transition: background var(--ease), color var(--ease);
+}
+.btn-outline:hover { background: var(--dark); color: var(--white); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.main-content {
+  max-width: 1200px; margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.booking-container {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+/* ============================================================
+   BOOKING SECTIONS
+   ============================================================ */
+.booking-section {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: box-shadow var(--ease);
+}
+.booking-section:hover { box-shadow: 0 4px 24px rgba(0,0,0,.10); }
+
+.booking-section h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: .95rem; font-weight: 700;
+  color: var(--dark); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+.booking-section h3 i { color: var(--gold); font-size: 1.1rem; }
+
+/* ============================================================
+   SERVICE GRID
+   ============================================================ */
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.service-option {
+  position: relative;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; padding: 22px 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer; text-align: center;
+  background: var(--white);
+  transition: border-color var(--ease), background var(--ease),
+              transform var(--ease), box-shadow var(--ease);
+  user-select: none;
+}
+.service-option:hover {
+  border-color: var(--gold-light);
+  background: #fffdf5;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(201,168,76,.15);
+}
+
+/* checked state via sibling selector */
+#svc-1:checked ~ .booking-container .service-option[for="svc-1"],
+#svc-2:checked ~ .booking-container .service-option[for="svc-2"],
+#svc-3:checked ~ .booking-container .service-option[for="svc-3"],
+#svc-4:checked ~ .booking-container .service-option[for="svc-4"] {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #fffdf0, #fff8e1);
+  box-shadow: 0 4px 20px rgba(201,168,76,.25);
+}
+
+/* label[for] trick — target by attribute */
+label.service-option[for="svc-1"],
+label.service-option[for="svc-2"],
+label.service-option[for="svc-3"],
+label.service-option[for="svc-4"] { display: flex; }
+
+#svc-1:checked ~ .booking-container label[for="svc-1"],
+#svc-2:checked ~ .booking-container label[for="svc-2"],
+#svc-3:checked ~ .booking-container label[for="svc-3"],
+#svc-4:checked ~ .booking-container label[for="svc-4"] {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #fffdf0, #fff8e1);
+  box-shadow: 0 4px 20px rgba(201,168,76,.25);
+}
+
+.svc-icon {
+  font-size: 1.6rem; color: var(--muted);
+  transition: color var(--ease);
+}
+#svc-1:checked ~ .booking-container label[for="svc-1"] .svc-icon,
+#svc-2:checked ~ .booking-container label[for="svc-2"] .svc-icon,
+#svc-3:checked ~ .booking-container label[for="svc-3"] .svc-icon,
+#svc-4:checked ~ .booking-container label[for="svc-4"] .svc-icon {
+  color: var(--gold);
+}
+
+.service-option .text h4 { font-size: .85rem; font-weight: 600; margin-bottom: 2px; }
+.service-option .text .price { font-size: .78rem; color: var(--muted); font-weight: 500; }
+
+#svc-1:checked ~ .booking-container label[for="svc-1"] .price,
+#svc-2:checked ~ .booking-container label[for="svc-2"] .price,
+#svc-3:checked ~ .booking-container label[for="svc-3"] .price,
+#svc-4:checked ~ .booking-container label[for="svc-4"] .price {
+  color: var(--gold-dark); font-weight: 600;
+}
+
+/* check badge */
+.check-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 1.1rem; color: var(--gold);
+  opacity: 0; transform: scale(.4);
+  transition: opacity var(--ease), transform var(--ease);
+}
+#svc-1:checked ~ .booking-container label[for="svc-1"] .check-badge,
+#svc-2:checked ~ .booking-container label[for="svc-2"] .check-badge,
+#svc-3:checked ~ .booking-container label[for="svc-3"] .check-badge,
+#svc-4:checked ~ .booking-container label[for="svc-4"] .check-badge {
+  opacity: 1; transform: scale(1);
+}
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+.calendar-wrapper {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: flex; align-items: center; justify-content: center;
+  padding: 14px 20px;
+  background: var(--dark); color: var(--white);
+}
+.calendar-header h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: .95rem; font-weight: 700; letter-spacing: .04em;
+}
+
+.calendar-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 0; padding: 12px; background: var(--white);
+}
+
+.day-name {
+  text-align: center; font-size: .7rem; font-weight: 700;
+  color: var(--muted); letter-spacing: .06em; text-transform: uppercase;
+  padding: 6px 0 10px;
+}
+
+.day {
+  display: flex; align-items: center; justify-content: center;
+  height: 38px; font-size: .85rem; font-weight: 500;
+  color: var(--dark); border-radius: 50%;
+  cursor: pointer; margin: 2px;
+  transition: background var(--ease), color var(--ease), transform var(--ease);
+}
+.day:hover:not(.empty) {
+  background: #fff8e1; color: var(--gold-dark); transform: scale(1.1);
+}
+.day.empty { cursor: default; pointer-events: none; }
