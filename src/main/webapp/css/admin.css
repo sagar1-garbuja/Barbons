@@ -1,0 +1,698 @@
+/* ============================================================
+   BARBONS BARBER — Admin CSS
+   Layout: Black left sidebar + top header bar + cream content
+   ============================================================ */
+
+:root {
+  --bg:          #F5F0E8;
+  --surface:     #FFFFFF;
+  --surface2:    #EDE8DF;
+  --nav-bg:      #0D0D0D;
+  --sidebar-w:   200px;
+  --header-h:    52px;
+  --border:      #D8D0C4;
+  --text:        #1A1A1A;
+  --text-light:  #FFFFFF;
+  --muted:       #7A7060;
+  --accent:      #C9A84C;
+  --accent-light:#F5EDD6;
+  --pending:     #D4860A;
+  --confirmed:   #2E6DA4;
+  --completed:   #2A7A4B;
+  --cancelled:   #B03A2E;
+  --radius:      8px;
+  --ease:        .2s ease;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ══════════════════════════════════════════
+   LEFT SIDEBAR
+══════════════════════════════════════════ */
+.admin-sidebar {
+  width: var(--sidebar-w);
+  background: var(--nav-bg);
+  min-height: 100vh;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.admin-sidebar-brand {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid #1E1E1E;
+}
+
+.admin-sidebar-brand a {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: #FFFFFF; text-decoration: none;
+  line-height: 1.3;
+  display: block;
+}
+
+.admin-sidebar-brand a span {
+  display: block;
+  font-size: .65rem; font-weight: 400;
+  color: var(--accent); letter-spacing: .12em;
+  margin-top: 2px;
+}
+
+.admin-sidebar-nav {
+  flex: 1;
+  padding: 16px 0;
+}
+
+.admin-sidebar-nav a {
+  display: block;
+  padding: 11px 20px;
+  font-size: .85rem; font-weight: 500;
+  color: #A0A0A0; text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: color var(--ease), background var(--ease), border-color var(--ease);
+  white-space: nowrap;
+}
+
+.admin-sidebar-nav a:hover {
+  color: #FFFFFF;
+  background: rgba(255,255,255,.06);
+}
+
+.admin-sidebar-nav a.active {
+  color: #FFFFFF;
+  background: rgba(255,255,255,.1);
+  border-left-color: var(--accent);
+}
+
+/* ══════════════════════════════════════════
+   MAIN WRAPPER (right of sidebar)
+══════════════════════════════════════════ */
+.admin-main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Top header bar ── */
+.admin-header {
+  height: var(--header-h);
+  background: var(--nav-bg);
+  border-bottom: 1px solid #1E1E1E;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky; top: 0; z-index: 1000;
+}
+
+.admin-header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 600;
+  color: #FFFFFF; letter-spacing: .04em;
+}
+
+.admin-header-right {
+  display: flex; align-items: center; gap: 16px;
+}
+
+.admin-header-user {
+  font-size: .82rem; color: #A0A0A0;
+}
+
+.admin-header-user strong { color: #FFFFFF; }
+
+.admin-nav-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #FFFFFF; color: #0D0D0D;
+  font-size: 1rem;
+}
+
+/* Ensure avatar image is constrained to the avatar box */
+.admin-nav-avatar img {
+  width: 34px; height: 34px; display: block; object-fit: cover;
+}
+
+.admin-nav-name {
+  font-size: .88rem;
+  color: #FFFFFF;
+  white-space: nowrap;
+  max-width: 160px; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Prevent very large images inside admin content from overlapping header */
+.admin-content img {
+  max-width: 100%; height: auto; display: block; max-height: 420px;
+  position: relative; z-index: 1; object-fit: contain;
+}
+
+/* Ensure any large image placed directly under admin-main does not float above header */
+.admin-main img { display: block; max-width: 100%; height: auto; max-height: 520px; }
+
+.admin-nav-name {
+  font-size: .88rem;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.admin-header-right .btn-sm {
+  padding: 8px 14px;
+}
+
+/* ── Content area ── */
+.admin-content {
+  flex: 1;
+  padding: 32px 36px 60px;
+  background: var(--bg);
+}
+
+.page-header { margin-bottom: 28px; }
+
+.page-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem; font-weight: 700; color: var(--text);
+  margin-bottom: 4px;
+}
+
+.page-header p { color: var(--muted); font-size: .9rem; }
+
+/* ── Stat cards ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  transition: box-shadow var(--ease), transform var(--ease);
+}
+.stat-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.1); transform: translateY(-2px); }
+
+.stat-card .stat-label {
+  font-size: .7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--muted); margin-bottom: 8px;
+}
+.stat-card .stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; font-weight: 700; color: var(--text);
+}
+.stat-card .stat-sub { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+
+/* ── Section card ── */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.section-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-card-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; font-weight: 600; color: var(--text);
+}
+
+/* ── Two-col layout ── */
+.admin-two-col {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+/* ── Filter row ── */
+.filter-row {
+  display: flex; gap: 12px; align-items: flex-end;
+  margin-bottom: 18px; flex-wrap: wrap;
+}
+
+.filter-row select,
+.filter-row input[type="date"] {
+  padding: 8px 12px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: .85rem;
+  outline: none; cursor: pointer;
+  transition: border-color var(--ease);
+}
+.filter-row select:focus,
+.filter-row input[type="date"]:focus { border-color: var(--accent); }
+
+/* ── Manage list ── */
+.manage-list { display: flex; flex-direction: column; gap: 10px; }
+
+.manage-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); gap: 12px;
+  transition: background var(--ease);
+}
+.manage-item:hover { background: var(--accent-light); }
+
+.manage-item .item-info { flex: 1; }
+.manage-item .item-name { font-weight: 600; font-size: .88rem; color: var(--text); }
+.manage-item .item-sub  { font-size: .76rem; color: var(--muted); margin-top: 2px; }
+.manage-item .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 18px; border-radius: 6px;
+  font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 600;
+  cursor: pointer; border: none; transition: all var(--ease);
+  text-decoration: none; white-space: nowrap;
+}
+.btn-primary  { background: var(--nav-bg); color: #FFF; }
+.btn-primary:hover  { background: #2A2A2A; }
+.btn-outline  { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+.btn-outline:hover  { border-color: var(--nav-bg); color: var(--nav-bg); }
+.btn-outline-light  { background: transparent; color: #FFF; border: 1.5px solid rgba(255,255,255,.4); }
+.btn-outline-light:hover { background: rgba(255,255,255,.1); border-color: #FFF; }
+.btn-danger   { background: #B03A2E; color: #FFF; }
+.btn-danger:hover   { background: #922E24; }
+.btn-success  { background: #2A7A4B; color: #FFF; }
+.btn-success:hover  { background: #1F5C38; }
+.btn-info     { background: #2E6DA4; color: #FFF; }
+.btn-info:hover     { background: #245A8A; }
+.btn-warning  { background: var(--accent); color: #FFF; }
+.btn-warning:hover  { background: #B8943A; }
+.btn-sm { padding: 5px 12px; font-size: .78rem; }
+.btn-full { width: 100%; }
+
+/* ── Badges ── */
+.badge {
+  display: inline-block; padding: 3px 9px; border-radius: 20px;
+  font-size: .72rem; font-weight: 600; text-transform: capitalize;
+}
+.badge-pending   { background: #FEF3E2; color: #D4860A; border: 1px solid #F5C97A; }
+.badge-confirmed { background: #E8F0FA; color: #2E6DA4; border: 1px solid #A8C4E8; }
+.badge-completed { background: #E6F4EC; color: #2A7A4B; border: 1px solid #8ECBA8; }
+.badge-cancelled { background: #FAEAE8; color: #B03A2E; border: 1px solid #E8A89E; }
+
+/* ── Alerts ── */
+.alert {
+  padding: 11px 14px; border-radius: 6px;
+  font-size: .86rem; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.alert-error   { background: #FAEAE8; border: 1px solid #E8A89E; color: #922E24; }
+.alert-success { background: #E6F4EC; border: 1px solid #8ECBA8; color: #1F5C38; }
+.alert-info    { background: #E8F0FA; border: 1px solid #A8C4E8; color: #245A8A; }
+
+/* ── Forms ── */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; font-size: .78rem; font-weight: 700;
+  color: var(--muted); margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.form-control {
+  width: 100%; padding: 10px 12px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 6px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: .88rem;
+  transition: border-color var(--ease); outline: none;
+}
+.form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201,168,76,.12); }
+.form-control::placeholder { color: #B8B0A4; }
+textarea.form-control { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── Tables ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+thead th {
+  background: var(--surface2); color: var(--muted);
+  font-weight: 700; font-size: .72rem; letter-spacing: .07em;
+  text-transform: uppercase; padding: 10px 14px; text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background var(--ease); }
+tbody tr:hover { background: var(--accent-light); }
+tbody td { padding: 11px 14px; vertical-align: middle; color: var(--text); }
+
+/* ── Divider ── */
+hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+
+@media (max-width: 1024px) {
+  .admin-two-col { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — Admin
+   Sidebar becomes horizontal scrollable top bar
+══════════════════════════════════════════ */
+/* @media (max-width: 768px) {
+  body { flex-direction: column; }
+
+  .admin-sidebar {
+    width: 100%;
+    min-height: auto;
+    position: sticky;
+    top: 0;
+    flex-direction: row;
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: none;
+    border-bottom: 1px solid #1E1E1E;
+    z-index: 100;
+  } */
+
+  /* .admin-sidebar-brand {
+    padding: 0 16px;
+    border-bottom: none;
+    border-right: 1px solid #1E1E1E;
+    white-space: nowrap;
+    display: flex; align-items: center;
+    flex-shrink: 0;
+    height: 50px;
+  }
+  .admin-sidebar-brand a { font-size: .78rem; }
+  .admin-sidebar-brand a span { display: none; }
+
+  .admin-sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    flex: 1;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-sidebar-nav a {
+    padding: 0 12px;
+    height: 50px;
+    display: flex; align-items: center;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    font-size: .76rem;
+  }
+  .admin-sidebar-nav a.active {
+    border-bottom-color: var(--accent);
+    border-left: none;
+    background: rgba(201,168,76,.08);
+  }
+
+  .admin-main    { margin-left: 0; }
+  .admin-header  { display: none; }
+  .admin-content { padding: 14px 14px 40px; }
+  .admin-two-col { grid-template-columns: 1fr; }
+  .stat-grid     { grid-template-columns: 1fr 1fr; }
+  .table-wrap    { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table          { min-width: 500px; }
+  .filter-row    { flex-direction: column; align-items: stretch; }
+  .filter-row select,
+  .filter-row input[type="date"] { width: 100%; }
+  .section-card  { padding: 14px; }
+  .page-header h1 { font-size: 1.3rem; }
+}
+
+@media (max-width: 480px) {
+  .manage-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .manage-item .item-actions { width: 100%; flex-wrap: wrap; }
+  .admin-sidebar-nav a { font-size: .7rem; padding: 0 8px; }
+  .admin-sidebar-brand a { font-size: .7rem; }
+} */
+/* ============================================================
+   BARBONS BARBER — MOBILE RESPONSIVE CSS
+   Add this file AFTER your main stylesheet.
+   Targets: ≤900px (tablet), ≤680px (mobile), ≤400px (small)
+   ============================================================ */
+
+
+/* =============================================
+   TABLET & SMALL DESKTOP  (max-width: 900px)
+   ============================================= */
+@media (max-width: 900px) {
+
+  /* --- AUTH PAGES (Login / Register) --- */
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+  .auth-hero {
+    min-height: 250px;
+    padding: 28px;
+  }
+  .auth-hero-logo {
+    top: 20px;
+    left: 28px;
+    font-size: 12px;
+  }
+  .auth-hero h2 {
+    font-size: 28px;
+  }
+  .auth-form-side {
+    padding: 40px 28px;
+  }
+
+  /* --- DASHBOARD STATS --- */
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* --- BOOKING PAGE: steps nav wraps to 2 rows --- */
+  .steps-nav {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .steps-nav .step-tab:nth-child(3) {
+    border-right: none;
+  }
+  .steps-nav .step-tab:nth-child(4) {
+    border-top: 1.5px solid #e8e2d8;
+  }
+  .steps-nav .step-tab:nth-child(5) {
+    border-top: 1.5px solid #e8e2d8;
+    border-right: none;
+  }
+
+  /* --- BOOKING: summary drops below --- */
+  .booking-layout {
+    grid-template-columns: 1fr;
+  }
+  .booking-summary {
+    position: static;
+  }
+
+  /* --- CONTACT: stacks vertically --- */
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- PROFILE: stacks vertically --- */
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =============================================
+   MOBILE  (max-width: 680px)
+   ============================================= */
+@media (max-width: 680px) {
+
+  /* --- NAVBAR --- */
+  .nav-links {
+    display: none;                    /* hide desktop nav links */
+  }
+  .nav-user span,
+  .btn-profile,
+  .btn-logout-nav {
+    display: none;                    /* hide desktop user controls */
+  }
+  .hamburger {
+    display: flex;                    /* show hamburger icon */
+  }
+  .nav-drawer {
+    display: block;                   /* enable mobile drawer */
+  }
+
+  /* --- AUTH PAGES --- */
+  .auth-form-side {
+    padding: 32px 20px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;       /* email + phone stack */
+  }
+
+  /* --- PAGE CONTENT PADDING --- */
+  .page-content {
+    padding: 28px 16px 48px;
+  }
+  .card {
+    padding: 20px;
+  }
+
+  /* --- DASHBOARD STATS: single column, horizontal layout --- */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .stat-card {
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .stat-card .stat-label {
+    margin-bottom: 0;
+  }
+  .stat-card .stat-value {
+    font-size: 32px;
+  }
+
+  /* --- BOOKING STEPS: full vertical stack --- */
+  .steps-nav {
+    grid-template-columns: 1fr;
+    border-radius: 12px;
+  }
+  .step-tab {
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: 1.5px solid #e8e2d8;
+  }
+  .step-tab:last-child {
+    border-bottom: none;
+  }
+
+  /* --- BOOKING SUMMARY --- */
+  .booking-summary {
+    padding: 22px;
+  }
+
+  /* --- PROFILE PHOTO SECTION --- */
+  .profile-photo-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* --- LOGOUT MODAL BUTTONS --- */
+  .modal-btns {
+    flex-direction: column;
+  }
+  .logout-modal {
+    padding: 32px 24px 28px;
+  }
+
+  /* --- CONTACT --- */
+  .contact-grid {
+    gap: 20px;
+  }
+
+  /* --- HOME HERO BUTTONS --- */
+  .home-hero-btns {
+    flex-direction: column;
+    align-items: center;
+  }
+  .home-hero-btns .btn {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* --- REVIEWS --- */
+  .reviews-hero {
+    padding: 40px 16px 32px;
+  }
+  .reviews-hero h1 {
+    font-size: 32px;
+  }
+}
+
+
+/* =============================================
+   SMALL PHONES  (max-width: 400px)
+   ============================================= */
+@media (max-width: 400px) {
+
+  /* --- AUTH HERO --- */
+  .auth-hero {
+    min-height: 200px;
+  }
+  .auth-hero h2 {
+    font-size: 24px;
+  }
+
+  /* --- NAVBAR BRAND --- */
+  .nav-brand {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  /* --- PAGE HEADERS --- */
+  .page-header h1 {
+    font-size: 24px;
+  }
+
+  /* --- CARDS --- */
+  .card {
+    padding: 16px;
+  }
+
+  /* --- PROFILE PHOTO ACTIONS --- */
+  .profile-photo-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* --- BOOKING SUMMARY --- */
+  .booking-summary {
+    padding: 18px;
+  }
+  .booking-summary h3 {
+    font-size: 17px;
+  }
+
+  /* --- CONTACT FORM --- */
+  .contact-page-title {
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  /* --- LOGOUT MODAL --- */
+  .logout-modal {
+    padding: 28px 18px 22px;
+    border-radius: 16px;
+  }
+  .logout-modal h2 {
+    font-size: 22px;
+  }
+
+  /* --- FOOTER --- */
+  .site-footer {
+    font-size: 10px;
+    padding: 16px;
+  }
+}
